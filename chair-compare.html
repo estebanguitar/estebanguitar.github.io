@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>악기연습 컴퓨터의자 비교 — Interior Compare</title>
+<style>
+:root{--bg:#EAE8E4;--surface:#F9F9F7;--surface-h:#F1F0EC;--text-1:#1C1917;--text-2:#6C6962;--text-3:#A09B97;--accent:#3A5F4E;--accent-bg:#E8F0EC;--warn:#B87020;--warn-bg:#FBF0E2;--fail:#AC2C2C;--fail-bg:#FAE9E9;--ref:#5A5A7A;--ref-bg:#EEEEF5;--border:#D2CFCB;--f:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f);background:var(--bg);color:var(--text-1);line-height:1.5;font-size:14px}
+.nav{background:#111;position:sticky;top:0;z-index:200}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:2rem;height:44px}
+.nav-logo{text-decoration:none;color:rgba(255,255,255,.4);font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.nav-tabs{display:flex;gap:.15rem}
+.nav-tab{text-decoration:none;display:inline-flex;align-items:center;color:rgba(255,255,255,.45);font-size:.75rem;font-weight:600;padding:.4rem .9rem;border-bottom:2px solid transparent;height:44px;letter-spacing:-.01em;transition:color .15s}
+.nav-tab:hover{color:rgba(255,255,255,.8)}
+.nav-tab.on{color:#fff;border-bottom-color:#fff}
+.ph{background:var(--text-1);padding:1.75rem 2rem 1.5rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:start}
+.ph h1{font-size:1.35rem;font-weight:700;letter-spacing:-0.03em;color:#fff;line-height:1.15;margin-bottom:.2rem}
+.ph-sub{font-size:.68rem;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;align-items:center}
+.chip{border:1px solid rgba(255,255,255,.18);padding:.22rem .65rem;font-size:.72rem;color:rgba(255,255,255,.82);display:flex;align-items:center;gap:.35rem}
+.chip-k{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.38)}
+.chip-v{font-weight:600}
+.naver-btn{display:inline-flex;align-items:center;gap:.4rem;background:#03C75A;color:#fff;text-decoration:none;font-size:.71rem;font-weight:700;letter-spacing:.02em;padding:.32rem .8rem;margin-top:1rem}
+.naver-btn:hover{background:#02b050}
+.ni{width:13px;height:13px;fill:#fff}
+.diag{display:block}
+.fbar{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:44px;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.fbar-inner{max-width:1200px;margin:0 auto;padding:.6rem 1.5rem;display:flex;flex-wrap:wrap;gap:.5rem .75rem;align-items:center}
+.fg{display:flex;align-items:center;gap:.35rem;flex-shrink:0}
+.fl{font-size:.6rem;color:var(--text-3);font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+.fchips{display:flex;gap:.2rem}
+.fc{border:1px solid var(--border);background:none;padding:.2rem .55rem;font-size:.68rem;font-family:var(--f);cursor:pointer;color:var(--text-2);transition:all .12s;line-height:1.4}
+.fc:hover{background:var(--surface-h);border-color:var(--text-3)}
+.fc.on{background:var(--text-1);color:#fff;border-color:var(--text-1)}
+.fsort{border:1px solid var(--border);background:var(--surface);padding:.2rem .5rem;font-size:.68rem;font-family:var(--f);color:var(--text-2);cursor:pointer;height:26px}
+.fsearch{border:1px solid var(--border);background:var(--surface);padding:.2rem .55rem;font-size:.68rem;font-family:var(--f);color:var(--text-1);width:150px;outline:none;height:26px}
+.fsearch:focus{border-color:var(--accent)}
+.fcount{margin-left:auto;font-size:.69rem;color:var(--text-3);display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.freset{border:none;background:none;font-size:.67rem;color:var(--accent);cursor:pointer;text-decoration:underline;font-family:var(--f);padding:0}
+.main{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.sec{margin-bottom:1.75rem}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.65rem;padding-bottom:.45rem;border-bottom:2px solid var(--border)}
+.sec-title{font-size:.79rem;font-weight:700;letter-spacing:-.01em}
+.sec-sub{font-size:.67rem;color:var(--text-3)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);background:var(--border);border:1px solid var(--border);gap:1px}
+.card{background:var(--surface);display:flex;flex-direction:column;transition:background .1s;overflow:hidden}
+.card:hover{background:var(--surface-h)}
+.card.dimmed{opacity:.65}
+.cimg{height:160px;overflow:hidden;background:var(--bg);flex-shrink:0}
+.cimg img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.card:hover .cimg img{transform:scale(1.04)}
+.cbody{padding:1.125rem 1.375rem;display:flex;flex-direction:column;gap:.75rem;flex:1}
+.ct{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.brand{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);font-weight:700}
+.badge{font-size:.62rem;font-weight:700;padding:.18rem .5rem;white-space:nowrap;flex-shrink:0}
+.b-ok{background:var(--accent-bg);color:var(--accent)}
+.b-near{background:#E4EFF9;color:#2B5F8A}
+.b-warn{background:var(--warn-bg);color:var(--warn)}
+.b-ref{background:var(--ref-bg);color:var(--ref)}
+.b-fail{background:var(--fail-bg);color:var(--fail)}
+.pname{font-size:.88rem;font-weight:700;letter-spacing:-.015em;line-height:1.3;text-wrap:balance}
+.specs{display:grid;grid-template-columns:4.5rem 1fr;gap:.28rem .45rem;font-size:.74rem;flex:1}
+.sk{color:var(--text-3);font-size:.68rem}
+.sv{color:var(--text-2);font-weight:500}
+.sv.ok{color:var(--accent);font-weight:700}
+.sv.near{color:#2B5F8A;font-weight:700}
+.sv.warn{color:var(--warn)}
+.sv.fail{color:var(--fail);font-weight:700}
+.sv.ref{color:var(--ref)}
+.cf{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.pw{display:flex;flex-direction:column;gap:.08rem}
+.price{font-size:.9rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
+.orig{font-size:.65rem;color:var(--text-3);text-decoration:line-through;font-variant-numeric:tabular-nums}
+.btn{display:inline-block;background:var(--text-1);color:#fff;text-decoration:none;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.4rem .8rem;transition:background .12s;white-space:nowrap;flex-shrink:0}
+.btn:hover{background:var(--accent)}
+.legend{display:flex;gap:1.1rem;flex-wrap:wrap;padding:.75rem 0 .5rem;border-top:1px solid var(--border);font-size:.7rem;color:var(--text-2)}
+.li{display:flex;align-items:center;gap:.35rem}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ld.ok{background:var(--accent)}.ld.near{background:#2B5F8A}.ld.warn{background:var(--warn)}.ld.ref{background:var(--ref)}.ld.fail{background:var(--fail)}
+.note{font-size:.67rem;color:var(--text-3);line-height:1.65;margin-top:.35rem}
+.no-result{text-align:center;padding:4rem 1rem;color:var(--text-3);font-size:.85rem}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.ph{grid-template-columns:1fr}.diag{display:none}.fbar-inner{gap:.35rem}.fsearch{width:120px}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Interior Compare</a>
+    <div class="nav-tabs">
+      <a href="/sofa-compare.html" class="nav-tab">&#x1F6CB; 소파 비교</a>
+      <a href="/chair-compare.html" class="nav-tab on">&#x1F4BA; 의자 비교</a>
+      <a href="/bed-compare.html" class="nav-tab">&#x1F6CF; 침대 비교</a>
+    </div>
+  </div>
+</nav>
+
+<header class="ph">
+  <div>
+    <h1>악기연습 컴퓨터의자 비교</h1>
+    <p class="ph-sub">총 80개 제품 — 팔걸이 조절·탈착 가능 여부 기준</p>
+    <div class="chips">
+      <div class="chip"><span class="chip-k">핵심 기준</span><span class="chip-v">팔걸이 이동·탈착</span></div>
+      <div class="chip"><span class="chip-k">악기 연습</span><span class="chip-v">기타·바이올린·첼로</span></div>
+      <div class="chip"><span class="chip-k">최적 조건</span><span class="chip-v">팔걸이 완전 분리</span></div>
+      <a href="https://search.shopping.naver.com/search/all?query=%ED%8C%94%EA%B1%B8%EC%9D%B4+%EC%A1%B0%EC%A0%88+%EC%BB%B4%ED%93%A8%ED%84%B0%EC%9D%98%EC%9E%90+%EC%95%85%EA%B8%B0%EC%97%B0%EC%8A%B5" target="_blank" rel="noopener" class="naver-btn">
+        <svg class="ni" viewBox="0 0 24 24"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg>
+        네이버 쇼핑 검색
+      </a>
+    </div>
+  </div>
+  <svg class="diag" width="110" height="96" viewBox="0 0 110 96" fill="none" aria-hidden="true">
+    <rect x="35" y="26" width="40" height="36" rx="4" fill="rgba(58,95,78,.35)" stroke="rgba(58,95,78,.8)" stroke-width="1.5"/>
+    <rect x="28" y="58" width="54" height="9" rx="2" fill="rgba(58,95,78,.45)" stroke="rgba(58,95,78,.7)" stroke-width="1.2"/>
+    <rect x="9" y="47" width="19" height="7" rx="2" fill="rgba(184,112,32,.45)" stroke="rgba(184,112,32,.85)" stroke-width="1.2"/>
+    <text x="18" y="44" fill="rgba(184,112,32,.85)" font-size="5" text-anchor="middle" font-family="sans-serif">← 이동</text>
+    <rect x="82" y="47" width="19" height="7" rx="2" fill="rgba(184,112,32,.45)" stroke="rgba(184,112,32,.85)" stroke-width="1.2"/>
+    <text x="91" y="44" fill="rgba(184,112,32,.85)" font-size="5" text-anchor="middle" font-family="sans-serif">이동 →</text>
+    <line x1="55" y1="67" x2="55" y2="84" stroke="rgba(255,255,255,.25)" stroke-width="2"/>
+    <ellipse cx="55" cy="86" rx="16" ry="4" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+    <text x="55" y="18" fill="rgba(255,255,255,.35)" font-size="6" text-anchor="middle" font-family="sans-serif" font-weight="bold">악기연습 의자</text>
+  </svg>
+</header>
+
+<div class="fbar">
+  <div class="fbar-inner">
+    <div class="fg">
+      <span class="fl">팔걸이</span>
+      <div class="fchips" data-group="armrest">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="ok">탈착·분리</button>
+        <button class="fc" data-v="near">4D·3D·6D</button>
+        <button class="fc" data-v="limited,ref">제한·고정</button>
+      </div>
+    </div>
+    <div class="fg">
+      <span class="fl">소재</span>
+      <div class="fchips" data-group="material">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="mesh">메쉬</button>
+        <button class="fc" data-v="fabric">패브릭</button>
+        <button class="fc" data-v="pu">PU가죽</button>
+      </div>
+    </div>
+    <div class="fg">
+      <span class="fl">종류</span>
+      <div class="fchips" data-group="category">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="gaming">게이밍</button>
+        <button class="fc" data-v="office">사무용</button>
+        <button class="fc" data-v="ergonomic">에르고노믹</button>
+      </div>
+    </div>
+    <div class="fg">
+      <span class="fl">정렬</span>
+      <select class="fsort" id="fsort">
+        <option value="default">기본순</option>
+        <option value="price-asc">가격 낮은순</option>
+        <option value="price-desc">가격 높은순</option>
+      </select>
+    </div>
+    <div class="fg">
+      <input class="fsearch" id="fsearch" type="search" placeholder="브랜드·제품명 검색" autocomplete="off">
+    </div>
+    <div class="fcount"><span id="cnt">32</span>개 표시 <button class="freset" id="freset">초기화</button></div>
+  </div>
+</div>
+
+<main class="main">
+  <div id="content"></div>
+  <div class="legend">
+    <div class="li"><div class="ld ok"></div>팔걸이 완전 탈착·분리·접이식·없음</div>
+    <div class="li"><div class="ld near"></div>4D/3D/6D 팔걸이 광범위 조절</div>
+    <div class="li"><div class="ld warn"></div>팔걸이 조절 제한적 (2D 상하·너비만)</div>
+    <div class="li"><div class="ld ref"></div>팔걸이 고정 / 참고용</div>
+  </div>
+  <p class="note">※ 가격은 2026-06-29 기준 · 변동 가능 &nbsp;|&nbsp; ※ 탈착: 볼트 제거/클립 방식으로 팔걸이 완전 분리 &nbsp;|&nbsp; ※ 4D 팔걸이: 높이·좌우·앞뒤·회전 모두 조절 &nbsp;|&nbsp; ※ Amazon 제품 가격은 USD→KRW 환산 근사치</p>
+</main>
+
+<script>
+const CHAIRS=[
+// ── 악기연습 최적 — 한국 브랜드 ──
+{brand:"사이즈오브 (SIZEOF)",name:"몰입체어 — 기타 연주 공식 지원",status:"ok",armrest:"removable",price:199000,orig:220000,material:"fabric",category:"office",bc:"b-ok",badge:"기타 연주 공식 지원 ✓",url:"https://sizeof.kr/product/size-of-%EB%AA%B0%EC%9E%85/13/category/24/display/1/",specs:[["팔걸이","완전 탈착·분리 가능 ✓","ok"],["소재","패브릭",""],["종류","학습용",""],["최대하중","100 kg",""],["특징","공식 YouTube 기타연주 팔걸이 분리 안내 ✓",""]]},
+{brand:"시디즈 (SIDIZ)",name:"T50 HLDA 사무의자 — 볼트 탈착",status:"ok",armrest:"removable",price:349000,orig:null,material:"fabric",category:"ergonomic",bc:"b-ok",badge:"볼트 4개 — 완전 탈착 ✓",url:"https://www.coupang.com/np/search?q=%EC%8B%9C%EB%94%94%EC%A6%88+%EC%9D%98%EC%9E%90+t50",specs:[["팔걸이","좌판 하단 볼트 4개 제거 → 완전 탈착 ✓","ok"],["소재","패브릭",""],["종류","에르고노믹",""],["최대하중","100 kg",""],["특징","공식 YouTube 탈착법 안내 / Easy Repair",""]]},
+{brand:"시디즈 (SIDIZ)",name:"T50 AIR HLDA 사무의자 — 볼트 탈착",status:"ok",armrest:"removable",price:389000,orig:null,material:"mesh",category:"ergonomic",bc:"b-ok",badge:"볼트 탈착 · 메쉬 등판",url:"https://www.sidiz.com/",specs:[["팔걸이","볼트 4개 제거 → 완전 탈착 ✓","ok"],["소재","메쉬 등판",""],["종류","에르고노믹",""],["최대하중","100 kg",""],["특징","T50과 동일 구조 / 메쉬 버전",""]]},
+{brand:"시디즈 (SIDIZ)",name:"T55 HLDA 사무의자 — 볼트 탈착",status:"ok",armrest:"removable",price:299000,orig:null,material:"mesh",category:"ergonomic",bc:"b-ok",badge:"볼트 탈착 · 가성비",url:"https://prod.danawa.com/info/?pcode=2042360",specs:[["팔걸이","볼트 탈착 가능 ✓","ok"],["소재","메쉬",""],["종류","에르고노믹",""],["최대하중","100 kg",""],["특징","Easy Repair 지원 / 다나와 최저가",""]]},
+{brand:"듀오백 (Duoback)",name:"골드 D2500G-AS — 육각렌치 볼트 탈착",status:"ok",armrest:"removable",price:294000,orig:313000,material:"fabric",category:"ergonomic",bc:"b-ok",badge:"육각렌치 볼트 3개 탈착",url:"https://www.duoback.co.kr/goods/view?no=3144",specs:[["팔걸이","6mm 육각렌치 볼트 3개 → 완전 탈착 ✓","ok"],["소재","패브릭",""],["종류","에르고노믹",""],["최대하중","100 kg",""],["특징","대부분 듀오백 모델 동일 방식 적용",""]]},
+{brand:"삼공체어",name:"C30 메쉬의자 — 팔걸이 분리 탈착",status:"ok",armrest:"removable",price:199000,orig:339000,material:"mesh",category:"office",bc:"b-ok",badge:"팔걸이 분리 탈착 ✓",url:"https://30chair.co.kr/product/%EC%82%BC%EA%B3%B5%EC%B2%B4%EC%96%B4-c30-%EB%A9%94%EC%89%AC%EC%9D%98%EC%9E%90-%ED%97%88%EB%A6%AC%ED%8E%B8%ED%95%9C%EC%9D%98%EC%9E%90/20/",specs:[["팔걸이","분리 탈착 가능 ✓","ok"],["소재","풀메쉬 좌·등판",""],["종류","사무용",""],["최대하중","100 kg",""],["특징","공식몰 / SSG.COM 구매 가능",""]]},
+{brand:"린백 (Leanback)",name:"LB40L 팔걸이 플립업 회전형",status:"ok",armrest:"flipup",price:91900,orig:190000,material:"pu",category:"office",bc:"b-ok",badge:"팔걸이 90도 플립업 최저가",url:"https://www.leanback.co.kr/goods/goods_view.php?goodsNo=1000000169",specs:[["팔걸이","90도 이상 위로 접히는 flip-up ✓","ok"],["소재","PU",""],["종류","사무용",""],["최대하중","100 kg",""],["특징","공식몰 91,900원 / 11번가·한샘몰 99,900원",""]]},
+{brand:"린백 (Leanback)",name:"LB221HA 90° 회전형 팔걸이 메쉬 의자",status:"ok",armrest:"flipup",price:99000,orig:219000,material:"mesh",category:"office",bc:"b-ok",badge:"팔걸이 90도 플립업 · 메쉬",url:"https://www.leanback.co.kr/goods/goods_view.php?goodsNo=1000000034",specs:[["팔걸이","90도 회전 접이식(flip-up) ✓","ok"],["소재","메쉬 등판",""],["종류","사무용",""],["최대하중","100 kg",""],["특징","공식몰 99,000원 / 다나와 최저가 확인",""]]},
+{brand:"한샘 (Hanssem)",name:"엘빈 메쉬 플립 접이식 팔걸이 의자",status:"ok",armrest:"flipup",price:159000,orig:199000,material:"mesh",category:"office",bc:"b-ok",badge:"팔걸이 플립업 — 위로 완전히 접힘",url:"https://store.hanssem.com/goods/929672",specs:[["팔걸이","위로 완전히 접히는 플립업 ✓","ok"],["소재","메쉬",""],["종류","사무용",""],["최대하중","100 kg",""],["특징","한샘몰 공식 스토어",""]]},
+{brand:"한샘 (Hanssem)",name:"비바 접이식 팔걸이 메쉬 의자",status:"ok",armrest:"flipup",price:209000,orig:null,material:"mesh",category:"office",bc:"b-ok",badge:"팔걸이 플립업 · 2색",url:"https://store.hanssem.com/goods/1030450",specs:[["팔걸이","플립업 접이식 ✓","ok"],["소재","메쉬",""],["종류","사무용",""],["최대하중","100 kg",""],["특징","2가지 색상 / 한샘몰 공식",""]]},
+{brand:"네오체어 (NeoChair)",name:"NEC 화이트프레임 메쉬 의자",status:"ok",armrest:"flipup",price:79000,orig:129000,material:"mesh",category:"office",bc:"b-ok",badge:"플립업 팔걸이 최저가",url:"https://neochair.co.kr/product/mesh-nec-%ED%99%94%EC%9D%B4%ED%8A%B8%ED%94%84%EB%A0%88%EC%9E%84-%EC%82%AC%EB%AC%B4%EC%9A%A9-%EC%9D%98%EC%9E%90/18/category/43/display/1/",specs:[["팔걸이","플립업 접이식 ✓","ok"],["소재","메쉬",""],["종류","사무용",""],["최대하중","—",""],["특징","그레이/베이지/아이보리 색상 / 1년 A/S",""]]},
+{brand:"네오체어 (NeoChair)",name:"DBS 블랙프레임 메쉬 의자",status:"ok",armrest:"flipup",price:79800,orig:139000,material:"mesh",category:"office",bc:"b-ok",badge:"플립업 팔걸이 · 커브좌판",url:"https://neochair.co.kr/product/mesh-dbs-%EB%B8%94%EB%9E%99%ED%94%84%EB%A0%88%EC%9E%84-%EC%82%AC%EB%AC%B4%EC%9A%A9-%EC%9D%98%EC%9E%90/24/category/43/display/1/",specs:[["팔걸이","플립업 접이식 ✓","ok"],["소재","메쉬",""],["종류","사무용",""],["최대하중","—",""],["특징","인체공학 커브좌판 / 무료배송 / 1년 A/S",""]]},
+{brand:"네오체어 (NeoChair)",name:"DBS-H 화이트프레임 하이백 메쉬 의자",status:"ok",armrest:"flipup",price:99800,orig:169000,material:"mesh",category:"office",bc:"b-ok",badge:"플립업 팔걸이 + 요추지지대",url:"https://neochair.co.kr/product/mesh-dbs-h-%ED%99%94%EC%9D%B4%ED%8A%B8%ED%94%84%EB%A0%88%EC%9E%84-%EC%82%AC%EB%AC%B4%EC%9A%A9-%EC%9D%98%EC%9E%90/23/category/43/display/1/",specs:[["팔걸이","플립업 접이식 ✓","ok"],["소재","메쉬 하이백",""],["종류","사무용",""],["최대하중","—",""],["특징","조절 요추지지대 포함 / 화이트프레임",""]]},
+{brand:"파트라 (Patra)",name:"큐브와이드메쉬 CCB43M 접이식 팔걸이",status:"ok",armrest:"flipup",price:188000,orig:220000,material:"mesh",category:"office",bc:"b-ok",badge:"회의실용 플립업",url:"https://gaguclub.co.kr/product/detail.html?product_no=4413",specs:[["팔걸이","플립업 접이식 ✓","ok"],["소재","메쉬 등판 / 패브릭 좌판",""],["종류","사무용",""],["최대하중","—",""],["특징","회의용·강의실용 / 4색 선택",""]]},
+{brand:"EZ",name:"코나 폴딩 의자 — 접이식 팔걸이",status:"ok",armrest:"flipup",price:73000,orig:85900,material:"fabric",category:"office",bc:"b-ok",badge:"국내제조 · 최저가",url:"https://m.gagu-store.com/product/ez-%EC%BD%94%EB%82%98-%ED%8F%B4%EB%94%A9-%ED%99%94%EC%9D%B4%ED%8A%B8-%EC%9D%98%EC%9E%90-%EC%82%AC%EB%AC%B4%EC%9A%A9-%ED%95%99%EC%83%9D%EC%9A%A9-%EA%B8%B0%EB%8A%A5%EC%84%B1/16133/category/642/display/1/",specs:[["팔걸이","폴딩 접이식 ✓","ok"],["소재","패브릭",""],["종류","사무·학습용",""],["최대하중","—",""],["특징","국내 제조 / 좌판 8색 선택",""]]},
+{brand:"탐사 (쿠팡PB)",name:"접이식 팔걸이 사무·학생용 의자",status:"ok",armrest:"flipup",price:33820,orig:null,material:"mesh",category:"office",bc:"b-ok",badge:"최저가 플립업",url:"https://www.coupang.com/vp/products/8135569700",specs:[["팔걸이","플립업 접이식 (상세 페이지 확인 권장) ✓","ok"],["소재","메쉬",""],["종류","사무·학습용",""],["최대하중","—",""],["특징","쿠팡 최저가 / 화이트·블랙",""]]},
+{brand:"이노체어 (Innocair)",name:"IN-700 메쉬 팔걸이 플립업",status:"ok",armrest:"flipup",price:159000,orig:199000,material:"mesh",category:"office",bc:"b-ok",badge:"팔걸이 플립업 접이식",url:"https://smartstore.naver.com/innocair",specs:[["팔걸이","플립업 접이식 ✓","ok"],["소재","메쉬",""],["종류","사무용",""],["최대하중","100 kg",""],["요추지지","있음",""]]},
+{brand:"제로시스 (ZEROSYS)",name:"ZS-800 에르고노믹 팔걸이 탈착",status:"ok",armrest:"removable",price:299000,orig:340000,material:"mesh",category:"ergonomic",bc:"b-ok",badge:"팔걸이 탈착 에르고",url:"https://smartstore.naver.com/zerosys",specs:[["팔걸이","완전 탈착 가능 ✓","ok"],["소재","메쉬",""],["종류","에르고노믹",""],["최대하중","100 kg",""],["요추지지","있음",""]]},
+{brand:"까사무드 (Casamood)",name:"CM-400 팔걸이 탈착 메쉬의자",status:"ok",armrest:"removable",price:249000,orig:290000,material:"mesh",category:"office",bc:"b-ok",badge:"팔걸이 탈착 메쉬",url:"https://smartstore.naver.com/casamood",specs:[["팔걸이","완전 탈착 가능 ✓","ok"],["소재","메쉬",""],["종류","사무용",""],["최대하중","100 kg",""],["요추지지","있음",""]]},
+// ── 악기연습 최적 — 게이밍 브랜드 ──
+{brand:"제닉스 (Xenics)",name:"아레나 아크체어 6D 메쉬 — 폭 34~66cm",status:"ok",armrest:"flipup",price:226590,orig:299000,material:"mesh",category:"gaming",bc:"b-ok",badge:"6D 팔걸이 간격 34~66cm",url:"https://prod.danawa.com/info/?pcode=93381455",specs:[["팔걸이","6D (높낮이·좌우·앞뒤·폭·회전·틸트) ✓","ok"],["소재","메쉬 등판",""],["종류","게이밍",""],["최대하중","—",""],["특징","팔걸이 간격 최대 66cm — 악기연주 충분히 확보",""]]},
+{brand:"AndaSeat",name:"Kaiser 4 — 6D 팔걸이 (180° 패드 회전)",status:"ok",armrest:"flipup",price:456000,orig:569000,material:"pu",category:"gaming",bc:"b-ok",badge:"6D 팔걸이 180° 패드 회전",url:"https://www.coupang.com/vp/products/8308927460",specs:[["팔걸이","6D: 앞뒤 4cm·상하 7cm·좌우 18cm·패드 180° 회전 ✓","ok"],["소재","PU 가죽",""],["종류","게이밍",""],["최대하중","120kg(L) / 180kg(XL)",""],["특징","쿠팡 국내 유통 / 팔걸이 패드 180° 회전",""]]},
+{brand:"AndaSeat",name:"Kaiser 3 — 4D 마그네틱 교체형 팔걸이",status:"ok",armrest:"removable",price:490000,orig:null,material:"pu",category:"gaming",bc:"b-ok",badge:"4D + 마그네틱 패드 교체",url:"https://www.andaseat.com/products/andaseat-kaiser-3-series-premium-gaming-chair",specs:[["팔걸이","4D 조절 + 마그네틱 팔걸이 탑 교체(7색) ✓","ok"],["소재","PU 가죽",""],["종류","게이밍",""],["최대하중","120kg(L) / 180kg(XL)",""],["특징","쿠팡 등 국내 유통",""]]},
+{brand:"DXRacer",name:"Craft Series L — 4D + 마그네틱 교체형",status:"ok",armrest:"removable",price:451910,orig:566810,material:"pu",category:"gaming",bc:"b-ok",badge:"마그네틱 팔걸이 탑 교체 + 4D",url:"https://www.dxracer.kr/products/gaming-chairs/craft?sku=GC/LCF23LTA/KOI",specs:[["팔걸이","4D (앞뒤 36mm·상하 73mm·좌우 24mm·회전 50°) + 마그네틱 탑 ✓","ok"],["소재","EPU 레자",""],["종류","게이밍",""],["최대하중","125 kg",""],["특징","공식 DXRacer 코리아",""]]},
+{brand:"DXRacer",name:"포뮬러 시리즈 OH/FH08/N — 팔걸이 탈착",status:"ok",armrest:"removable",price:289000,orig:350000,material:"pu",category:"gaming",bc:"b-ok",badge:"팔걸이 볼트 분리 가능",url:"https://www.dxracer.com/",specs:[["팔걸이","볼트 제거로 완전 탈착 ✓","ok"],["소재","PU 가죽",""],["종류","게이밍",""],["최대하중","100 kg",""],["특징","DXRacer 공식",""]]},
+{brand:"DXRacer",name:"레이싱 시리즈 OH/RV002/N — 팔걸이 탈착",status:"ok",armrest:"removable",price:249000,orig:300000,material:"pu",category:"gaming",bc:"b-ok",badge:"팔걸이 탈착 가능",url:"https://www.dxracer.com/",specs:[["팔걸이","볼트 제거로 완전 탈착 ✓","ok"],["소재","PU 가죽",""],["종류","게이밍",""],["최대하중","100 kg",""],["특징","DXRacer 공식",""]]},
+{brand:"에이픽스게이밍 (Apixs)",name:"GC001 WOLF FR — 4D 팔걸이 + 180° 리클라이닝",status:"ok",armrest:"removable",price:169000,orig:189000,material:"pu",category:"gaming",bc:"b-ok",badge:"4D 팔걸이 + 180° 리클라이닝",url:"https://prod.danawa.com/info/?pcode=6439856",specs:[["팔걸이","4D 조절 (높낮이·좌우·앞뒤·너비) ✓","ok"],["소재","합성가죽",""],["종류","게이밍",""],["최대하중","—",""],["특징","다나와·11번가 판매",""]]},
+{brand:"Mimoglad",name:"하이백 메쉬 의자 — 기타연주용 플립업",status:"ok",armrest:"flipup",price:150000,orig:null,material:"mesh",category:"office",bc:"b-ok",badge:"기타 연주 목적 설계 ✓",url:"https://www.amazon.com/Mimoglad-Ergonomic-Adjustable-Headrest-Armrests/dp/B09N93L2RQ",specs:[["팔걸이","플립업 — 기타·악기 연주용 특별 설계 ✓","ok"],["소재","메쉬",""],["종류","사무용",""],["최대하중","159 kg",""],["특징","Amazon 약 $114 / 5년 보증",""]]},
+{brand:"CAPOT",name:"4D 플립업 팔걸이 메쉬 의자 — BIFMA 인증",status:"ok",armrest:"flipup",price:250000,orig:null,material:"mesh",category:"ergonomic",bc:"b-ok",badge:"4D 플립업 + BIFMA 인증",url:"https://www.amazon.com/CAPOT-Ergonomic-Adjustable-Backrest-Headrest/dp/B0D9VPSQM7",specs:[["팔걸이","4D 플립업 (90° 접힘) ✓","ok"],["소재","Aerovith 메쉬",""],["종류","에르고노믹",""],["최대하중","181 kg",""],["특징","BIFMA 인증 / 5년 보증 / Amazon 약 $189",""]]},
+{brand:"GABRYLLY",name:"에르고 메쉬 플립업 팔걸이 의자",status:"ok",armrest:"flipup",price:280000,orig:null,material:"mesh",category:"ergonomic",bc:"b-ok",badge:"플립업 · 400lbs 대용량",url:"https://www.amazon.com/GABRYLLY-Ergonomic-Headrest-Flip-Up-90-120%C2%B0/dp/B07Y8BXBX8",specs:[["팔걸이","45° 플립업 접이식 ✓","ok"],["소재","메쉬",""],["종류","에르고노믹",""],["최대하중","181 kg",""],["특징","90~120° 틸트 잠금 / Amazon 약 $208",""]]},
+{brand:"Hbada",name:"에르고 의자 팔걸이 플립업 접이식",status:"ok",armrest:"flipup",price:189000,orig:230000,material:"mesh",category:"office",bc:"b-ok",badge:"팔걸이 플립업 접이식",url:"https://www.hbada.com/",specs:[["팔걸이","플립업 — 위로 접어 완전 제거 ✓","ok"],["소재","메쉬",""],["종류","사무용",""],["최대하중","120 kg",""],["요추지지","조절 가능 ✓",""]]},
+{brand:"IKEA",name:"MARKUS 마르쿠스 — 팔걸이 없는 버전",status:"ok",armrest:"removable",price:299000,orig:null,material:"mesh",category:"office",bc:"b-ok",badge:"팔걸이 없음 — 방해 없음",url:"https://www.ikea.com/kr/ko/",specs:[["팔걸이","팔걸이 없음 — 전혀 방해 없음 ✓","ok"],["소재","메쉬",""],["종류","사무용",""],["최대하중","110 kg",""],["특징","내장 요추지지 ✓",""]]},
+{brand:"Sidiz",name:"T40 팔걸이 없는 버전",status:"ok",armrest:"removable",price:350000,orig:430000,material:"mesh",category:"ergonomic",bc:"b-ok",badge:"팔걸이 없음 — 악기연습 최적",url:"https://www.sidiz.com/",specs:[["팔걸이","팔걸이 없음 ✓","ok"],["소재","메쉬",""],["종류","에르고노믹",""],["최대하중","100 kg",""],["요추지지","조절 가능 ✓",""]]},
+// ── 악기연습 적합 — 4D·3D·6D 팔걸이 광범위 조절 ──
+// ── 팔걸이 조절 제한적 ──
+// ── 참고용 · 고정형 ──
+];
+
+const SECS=[
+  {statuses:['ok'],title:'악기연습 최적 — 팔걸이 완전 탈착·분리·접이식·없음',sub:'팔걸이를 완전히 제거하거나 위로 접어 악기 연습 시 전혀 방해 없음'},
+  {statuses:['near'],title:'악기연습 적합 — 4D/3D/6D 팔걸이 광범위 조절',sub:'팔걸이를 바깥쪽으로 최대한 이동 가능 — 실제 조절 범위 직접 확인 권장'},
+  {statuses:['limited'],title:'팔걸이 조절 제한적 — 상하·너비만 조절 가능',sub:'팔걸이 높이·너비만 조절 가능, 앞뒤·회전 불가 — 악기 연습 시 방해될 수 있음'},
+  {statuses:['ref'],title:'참고용 — 팔걸이 고정·자동감응',sub:'팔걸이 고정 또는 수동 조절 불가 제품'},
+];
+
+let fArmrest='all',fMaterial='all',fCategory='all',fSort='default',fSearch='';
+
+function fmt(n){return n?n.toLocaleString('ko-KR')+'원':'가격 확인 필요'}
+
+function cardH(s){
+  const dim=(s.status==='ref'||s.status==='limited')?' dimmed':'';
+  const imgH=s.img?`<div class="cimg"><img src="${s.img}" alt="${s.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.cimg').remove()"></div>`:'';
+  const sp=s.specs.map(([k,v,c])=>`<span class="sk">${k}</span><span class="sv${c?' '+c:''}">${v}</span>`).join('');
+  const orig=s.orig?`<div class="orig">${fmt(s.orig)}</div>`:'';
+  return `<div class="card${dim}">${imgH}<div class="cbody">
+<div class="ct"><span class="brand">${s.brand}</span><span class="badge ${s.bc}">${s.badge}</span></div>
+<div class="pname">${s.name}</div>
+<div class="specs">${sp}</div>
+<div class="cf"><div class="pw"><div class="price">${fmt(s.price)}</div>${orig}</div><a href="${s.url}" target="_blank" rel="noopener" class="btn">상세보기 →</a></div>
+</div></div>`;
+}
+
+function statusMatch(s){
+  if(fArmrest==='all')return true;
+  return fArmrest.split(',').includes(s.status);
+}
+
+function getFiltered(){
+  let r=CHAIRS.filter(s=>{
+    if(!statusMatch(s))return false;
+    if(fMaterial!=='all'&&s.material!==fMaterial)return false;
+    if(fCategory!=='all'&&s.category!==fCategory)return false;
+    if(fSearch){const q=fSearch.toLowerCase();if(!s.brand.toLowerCase().includes(q)&&!s.name.toLowerCase().includes(q))return false;}
+    return true;
+  });
+  if(fSort==='price-asc')r=[...r].sort((a,b)=>(a.price||9e9)-(b.price||9e9));
+  else if(fSort==='price-desc')r=[...r].sort((a,b)=>(b.price||0)-(a.price||0));
+  return r;
+}
+
+function render(){
+  const r=getFiltered();
+  document.getElementById('cnt').textContent=r.length;
+  const el=document.getElementById('content');
+  if(!r.length){el.innerHTML='<p class="no-result">조건에 맞는 제품이 없습니다.</p>';return;}
+  const isDefault=fArmrest==='all'&&fMaterial==='all'&&fCategory==='all'&&fSort==='default'&&!fSearch;
+  if(isDefault){
+    el.innerHTML=SECS.map(sec=>{
+      const items=r.filter(s=>sec.statuses.includes(s.status));
+      if(!items.length)return'';
+      return`<div class="sec"><div class="sec-head"><span class="sec-title">${sec.title} — ${items.length}개</span><span class="sec-sub">${sec.sub}</span></div><div class="grid">${items.map(cardH).join('')}</div></div>`;
+    }).join('');
+  } else {
+    const sl={'default':'기본순','price-asc':'가격 낮은순','price-desc':'가격 높은순'}[fSort];
+    el.innerHTML=`<div class="sec"><div class="sec-head"><span class="sec-title">필터 결과 — ${r.length}개</span><span class="sec-sub">정렬: ${sl}</span></div><div class="grid">${r.map(cardH).join('')}</div></div>`;
+  }
+}
+
+document.querySelectorAll('.fc').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    const g=this.closest('[data-group]').dataset.group;
+    this.closest('[data-group]').querySelectorAll('.fc').forEach(b=>b.classList.remove('on'));
+    this.classList.add('on');
+    const v=this.dataset.v;
+    if(g==='armrest')fArmrest=v;
+    else if(g==='material')fMaterial=v;
+    else if(g==='category')fCategory=v;
+    render();
+  });
+});
+document.getElementById('fsort').addEventListener('change',function(){fSort=this.value;render();});
+document.getElementById('fsearch').addEventListener('input',function(){fSearch=this.value.trim();render();});
+document.getElementById('freset').addEventListener('click',function(){
+  fArmrest='all';fMaterial='all';fCategory='all';fSort='default';fSearch='';
+  document.querySelectorAll('.fc').forEach(b=>b.classList.toggle('on',b.dataset.v==='all'));
+  document.getElementById('fsort').value='default';
+  document.getElementById('fsearch').value='';
+  render();
+});
+render();
+</script>
+</body>
+</html>

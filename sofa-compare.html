@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>좌체이스 소파 비교 — Interior Compare</title>
+<style>
+:root{--bg:#EAE8E4;--surface:#F9F9F7;--surface-h:#F1F0EC;--text-1:#1C1917;--text-2:#6C6962;--text-3:#A09B97;--accent:#3A5F4E;--accent-bg:#E8F0EC;--warn:#B87020;--warn-bg:#FBF0E2;--fail:#AC2C2C;--fail-bg:#FAE9E9;--ref:#5A5A7A;--ref-bg:#EEEEF5;--border:#D2CFCB;--f:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f);background:var(--bg);color:var(--text-1);line-height:1.5;font-size:14px}
+.ph{background:var(--text-1);padding:1.75rem 2rem 1.5rem}
+.ph h1{font-size:1.35rem;font-weight:700;letter-spacing:-0.03em;color:#fff;line-height:1.15;margin-bottom:.2rem}
+.ph-sub{font-size:.68rem;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;align-items:center}
+.chip{border:1px solid rgba(255,255,255,.18);padding:.22rem .65rem;font-size:.72rem;color:rgba(255,255,255,.82);display:flex;align-items:center;gap:.35rem}
+.chip-k{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.38)}
+.chip-v{font-weight:600}
+.naver-btn{display:inline-flex;align-items:center;gap:.4rem;background:#03C75A;color:#fff;text-decoration:none;font-size:.71rem;font-weight:700;letter-spacing:.02em;padding:.32rem .8rem;margin-top:1rem;align-self:flex-start}
+.naver-btn:hover{background:#02b050}
+.ni{width:13px;height:13px;fill:#fff}
+/* FILTER BAR */
+.fbar{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:44px;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.fbar-inner{max-width:1200px;margin:0 auto;padding:.6rem 1.5rem;display:flex;flex-wrap:wrap;gap:.5rem .75rem;align-items:center}
+.fg{display:flex;align-items:center;gap:.35rem;flex-shrink:0}
+.fl{font-size:.6rem;color:var(--text-3);font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+.fchips{display:flex;gap:.2rem}
+.fc{border:1px solid var(--border);background:none;padding:.2rem .55rem;font-size:.68rem;font-family:var(--f);cursor:pointer;color:var(--text-2);transition:all .12s;line-height:1.4}
+.fc:hover{background:var(--surface-h);border-color:var(--text-3)}
+.fc.on{background:var(--text-1);color:#fff;border-color:var(--text-1)}
+.fsort{border:1px solid var(--border);background:var(--surface);padding:.2rem .5rem;font-size:.68rem;font-family:var(--f);color:var(--text-2);cursor:pointer;height:26px}
+.fsearch{border:1px solid var(--border);background:var(--surface);padding:.2rem .55rem;font-size:.68rem;font-family:var(--f);color:var(--text-1);width:150px;outline:none;height:26px}
+.fsearch:focus{border-color:var(--accent)}
+.fcount{margin-left:auto;font-size:.69rem;color:var(--text-3);display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.freset{border:none;background:none;font-size:.67rem;color:var(--accent);cursor:pointer;text-decoration:underline;font-family:var(--f);padding:0}
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.sec{margin-bottom:1.75rem}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.65rem;padding-bottom:.45rem;border-bottom:2px solid var(--border)}
+.sec-title{font-size:.79rem;font-weight:700;letter-spacing:-.01em}
+.sec-sub{font-size:.67rem;color:var(--text-3)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);background:var(--border);border:1px solid var(--border);gap:1px}
+/* CARD */
+.card{background:var(--surface);display:flex;flex-direction:column;transition:background .1s;overflow:hidden}
+.card:hover{background:var(--surface-h)}
+.card.dimmed{opacity:.65}
+.cimg{height:160px;overflow:hidden;background:var(--bg);flex-shrink:0}
+.cimg img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.card:hover .cimg img{transform:scale(1.04)}
+.cbody{padding:1.125rem 1.375rem;display:flex;flex-direction:column;gap:.75rem;flex:1}
+.ct{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.brand{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);font-weight:700}
+.badge{font-size:.62rem;font-weight:700;padding:.18rem .5rem;white-space:nowrap;flex-shrink:0}
+.b-ok{background:var(--accent-bg);color:var(--accent)}
+.b-near{background:#E4EFF9;color:#2B5F8A}
+.b-warn{background:var(--warn-bg);color:var(--warn)}
+.b-ref{background:var(--ref-bg);color:var(--ref)}
+.b-fail{background:var(--fail-bg);color:var(--fail)}
+.pname{font-size:.88rem;font-weight:700;letter-spacing:-.015em;line-height:1.3;text-wrap:balance}
+.specs{display:grid;grid-template-columns:4.5rem 1fr;gap:.28rem .45rem;font-size:.74rem;flex:1}
+.sk{color:var(--text-3);font-size:.68rem}
+.sv{color:var(--text-2);font-weight:500}
+.sv.ok{color:var(--accent);font-weight:700}
+.sv.near{color:#2B5F8A;font-weight:700}
+.sv.warn{color:var(--warn)}
+.sv.fail{color:var(--fail);font-weight:700}
+.sv.ref{color:var(--ref)}
+.cf{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.pw{display:flex;flex-direction:column;gap:.08rem}
+.price{font-size:.9rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
+.orig{font-size:.65rem;color:var(--text-3);text-decoration:line-through;font-variant-numeric:tabular-nums}
+.btn{display:inline-block;background:var(--text-1);color:#fff;text-decoration:none;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.4rem .8rem;transition:background .12s;white-space:nowrap;flex-shrink:0}
+.btn:hover{background:var(--accent)}
+.legend{display:flex;gap:1.1rem;flex-wrap:wrap;padding:.75rem 0 .5rem;border-top:1px solid var(--border);font-size:.7rem;color:var(--text-2)}
+.li{display:flex;align-items:center;gap:.35rem}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ld.ok{background:var(--accent)}.ld.near{background:#2B5F8A}.ld.warn{background:var(--warn)}.ld.ref{background:var(--ref)}.ld.fail{background:var(--fail)}
+.note{font-size:.67rem;color:var(--text-3);line-height:1.65;margin-top:.35rem}
+.no-result{text-align:center;padding:4rem 1rem;color:var(--text-3);font-size:.85rem}
+/* NAV */
+.nav{background:#111;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:300}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:2rem;height:44px}
+.nav-logo{text-decoration:none;color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.nav-tabs{display:flex;gap:.25rem}
+.nav-tab{text-decoration:none;display:inline-flex;align-items:center;color:rgba(255,255,255,.45);font-family:var(--f);font-size:.75rem;font-weight:600;cursor:pointer;padding:.4rem .9rem;transition:all .15s;border-bottom:2px solid transparent;height:44px;letter-spacing:-.01em}
+.nav-tab:hover{color:rgba(255,255,255,.8)}
+.nav-tab.on{color:#fff;border-bottom-color:#fff}
+/* COMING SOON */
+.coming-soon{max-width:1200px;margin:0 auto;padding:5rem 1.5rem;text-align:center}
+.coming-soon h2{font-size:1.5rem;font-weight:700;color:var(--text-1);margin-bottom:.75rem}
+.coming-soon p{color:var(--text-3);font-size:.9rem;margin-bottom:2rem}
+.coming-soon .cs-tag{display:inline-block;background:var(--accent-bg);color:var(--accent);font-size:.72rem;font-weight:700;padding:.3rem .8rem;letter-spacing:.04em}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.ph{grid-template-columns:1fr}.diag{display:none}.fsearch{width:110px}}
+</style>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">INTERIOR COMPARE</a>
+    <div class="nav-tabs">
+      <a href="/sofa-compare.html" class="nav-tab on">🛋 소파 비교</a>
+      <a href="/chair-compare.html" class="nav-tab">💺 의자 비교</a>
+      <a href="/bed-compare.html" class="nav-tab">🛏 침대 비교</a>
+    </div>
+  </div>
+</nav>
+<header class="ph">
+  <div>
+    <h1>좌체이스 소파 비교</h1>
+    <p class="ph-sub">총 94개 제품 — 실측 치수·썸네일 포함</p>
+    <div class="chips">
+      <div class="chip"><span class="chip-k">메인 길이</span><span class="chip-v">270~280cm</span></div>
+      <div class="chip"><span class="chip-k">전체 깊이</span><span class="chip-v">100~150cm</span></div>
+      <div class="chip"><span class="chip-k">체이스</span><span class="chip-v">좌체이스</span></div>
+      <a href="https://search.shopping.naver.com/search/all?query=%EC%A2%8C%EC%B2%B4%EC%9D%B4%EC%8A%A4+%EC%86%8C%ED%8C%8C+4%EC%9D%B8+280cm" target="_blank" rel="noopener" class="naver-btn">
+        <svg class="ni" viewBox="0 0 24 24"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg>네이버 쇼핑 검색
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="fbar">
+  <div class="fbar-inner">
+    <div class="fg"><span class="fl">상태</span>
+      <div class="fchips" data-group="status">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="ok,near">조건 충족/근접</button>
+        <button class="fc" data-v="exceed">기준 초과</button>
+        <button class="fc" data-v="check">확인 필요</button>
+        <button class="fc" data-v="ref">참고용</button>
+      </div>
+    </div>
+    <div class="fg"><span class="fl">소재</span>
+      <div class="fchips" data-group="material">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="fabric">패브릭</button>
+        <button class="fc" data-v="leather">가죽</button>
+      </div>
+    </div>
+    <div class="fg"><span class="fl">체이스</span>
+      <div class="fchips" data-group="chaise">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="left">좌형 전용</button>
+        <button class="fc" data-v="both">좌/우 선택</button>
+      </div>
+    </div>
+    <div class="fg"><span class="fl">정렬</span>
+      <select class="fsort" id="fsort">
+        <option value="default">기본순</option>
+        <option value="price-asc">가격 낮은순</option>
+        <option value="price-desc">가격 높은순</option>
+        <option value="length-asc">길이 짧은순</option>
+        <option value="length-desc">길이 긴순</option>
+      </select>
+    </div>
+    <div class="fg"><input class="fsearch" id="fsearch" type="search" placeholder="브랜드·제품명 검색" autocomplete="off"></div>
+    <div class="fcount"><span id="cnt">50</span>개 표시 <button class="freset" id="freset">초기화</button></div>
+  </div>
+</div>
+
+<main class="main">
+  <div id="content"></div>
+  <div id="sofa-legend" class="legend">
+    <div class="li"><div class="ld ok"></div>조건 충족 (270~280cm · 깊이 150cm↓)</div>
+    <div class="li"><div class="ld near"></div>조건 근접 (±20cm)</div>
+    <div class="li"><div class="ld warn"></div>주문제작·방향·사이즈 확인 필요</div>
+    <div class="li"><div class="ld fail"></div>사이즈 확인됨 — 기준 초과</div>
+    <div class="li"><div class="ld ref"></div>단종 가능 / 기준 미달</div>
+  </div>
+  <p class="note">※ 가격은 2026-06-29 기준 · 변동 가능 &nbsp;|&nbsp; ※ 좌체이스: 앉았을 때 왼쪽에 체이스 &nbsp;|&nbsp; ※ 막스앤 커스텀: 1522-4091 &nbsp;|&nbsp; ※ SOFA279: 031-942-2569 &nbsp;|&nbsp; ※ 에쉴리(한국 부산): 051-644-0023</p>
+</main>
+
+<script>
+const S=[
+// ── 조건 충족 ──
+{brand:"DUKER",name:"DK032 4인 카우치 워셔블 패브릭 소파",status:"ok",length:280,depth:null,price:1880000,orig:2489000,material:"fabric",chaise:"both",url:"https://www.duker.co.kr/goods/goods_view.php?goodsNo=1000000007",badge:"280cm 확인",bc:"b-ok",img:"https://godomall-storage.cdn-nhncommerce.com/3d909fdd897b246d681df19785d3471f/goods/1000000007/image/detail/1000000007_detail_015.jpg",specs:[["메인 길이","280cm ✓","ok"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","코튼 워셔블 패브릭",""],["특징","구스다운 / 1+1 커버 증정",""]]},
+{brand:"IKEA",name:"KIVIK 쉬비크 3인+긴의자",status:"ok",length:280,depth:null,price:1072000,orig:null,material:"fabric",chaise:"both",url:"https://www.ikea.com/kr/ko/p/kivik-3-seat-sofa-with-chaise-longue-gunnared-light-green-s49484812/",badge:"280cm 확인",bc:"b-ok",img:null,specs:[["메인 길이","280cm ✓","ok"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 자유 변경 ✓","ok"],["소재","폴리에스터 100% (재활용)",""],["특징","포켓스프링 / 커버 세탁",""]]},
+{brand:"IKEA",name:"LANDSKRONA 란스크로나 4인+긴의자 가죽",status:"ok",length:280,depth:null,price:1809000,orig:null,material:"leather",chaise:"both",url:"https://www.ikea.com/kr/ko/p/landskrona-4-seat-sofa-with-chaise-longue-grann-bomstad-golden-brown-metal-s29270355/",badge:"280cm 확인",bc:"b-ok",img:null,specs:[["메인 길이","280cm ✓","ok"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 자유 변경 ✓","ok"],["소재","천연 그레인 가죽 / 스틸 다리",""],["특징","IKEA 가죽 소파 라인",""]]},
+{brand:"ZARA HOME",name:"SOFA 01 by Vincent Van Duysen",status:"ok",length:280,depth:null,price:null,orig:null,material:"fabric",chaise:"both",url:"https://www.zara.com/kr/ko/sofa-01-p43355073.html",badge:"~280cm 확인",bc:"b-ok",img:null,specs:[["메인 길이","~280cm ✓","ok"],["전체 깊이","상세 페이지 확인","warn"],["체이스","모듈 좌/우 구성 ✓","ok"],["소재","패브릭 커버 (탈착·세탁 가능)",""],["특징","한국 공식몰 구매 가능",""]]},
+// ── 조건 근접 ──
+{brand:"IKEA",name:"SÖDERHAMN 쇠데르함 4인+긴의자",status:"near",length:291,depth:151,price:1289000,orig:null,material:"fabric",chaise:"both",url:"https://www.ikea.com/kr/ko/p/soederhamn-4-seat-sofa-with-chaise-longue-viarp-beige-brown-s49395019/",badge:"291cm — 약간 초과",bc:"b-near",img:"https://www.ikea.com/kr/ko/images/products/soederhamn-4-seat-sofa-with-chaise-longue-viarp-beige-brown__0928882_pe790044_s5.jpg?f=u",specs:[["메인 길이","291cm (11cm 초과)","near"],["전체 깊이","151cm (긴의자 깊이)","near"],["체이스","좌/우 자유 변경 ✓","ok"],["소재","패브릭 (커버 교체 가능)",""],["특징","모듈형 / 커버 세탁 가능",""]]},
+{brand:"HANSSEM",name:"아르떼 천연가죽 소파 4인 헤드틸팅",status:"near",length:301,depth:108,price:1459000,orig:null,material:"leather",chaise:"check",url:"https://prod.danawa.com/info/?pcode=13140812",badge:"301cm · 108cm 확인",bc:"b-near",img:"https://img.danuri.io/catalog-image/812/140/013/d733cabb2f2d430ea7323022a3b3c4a1.jpg",specs:[["메인 길이","301cm (21cm 초과)","near"],["전체 깊이","108cm ✓","ok"],["체이스","방향 매장 확인 필요","warn"],["소재","천연가죽 (소가죽 면피)",""],["특징","헤드틸팅 기능 / 한샘 공식",""]]},
+{brand:"FRITZ HANSEN",name:"Lune JH301 카우치 소파",status:"near",length:278,depth:157,price:null,orig:null,material:"both",chaise:"left",url:"https://www.fritzhansen.com/ko/categories/products/popular-series/lune",badge:"278cm · 157cm 확인",bc:"b-near",img:null,specs:[["메인 길이","277.5cm (2cm 미달)","near"],["전체 깊이","156.5cm (7cm 초과)","near"],["체이스","JH301 = 좌형 고정 ✓","ok"],["소재","패브릭/가죽 선택 / 오크 다리",""],["특징","한국 공식 쇼룸 / 프리미엄",""]]},
+{brand:"MUUTO",name:"Outline Sofa Chaise Longue",status:"near",length:263,depth:142,price:null,orig:null,material:"both",chaise:"both",url:"https://www.muuto.com/product/outline-sofa-chaise-longue-p21414/27622-nougat/",badge:"263cm · 142cm 확인",bc:"b-near",img:null,specs:[["메인 길이","263cm (7cm 미달)","near"],["전체 깊이","142cm ✓","ok"],["체이스","좌/우 선택 ✓","ok"],["소재","패브릭/레더 다양한 옵션",""],["특징","덴마크 / nordicnest.kr 취급",""]]},
+{brand:"LIVART",name:"프로쉬 2시트 패브릭 카우치 소파 (4인)",status:"near",length:285,depth:null,price:1007900,orig:null,material:"fabric",chaise:"both",url:"https://www.hyundailivart.co.kr/search?keyword=%ED%94%84%EB%A1%9C%EC%89%AC",badge:"285cm 확인",bc:"b-near",img:null,specs:[["메인 길이","285cm (5cm 초과)","near"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","CULP 기능성 패브릭",""],["특징","현대리바트 / 클리어런스",""]]},
+{brand:"MONDAY HOUSE",name:"MARCH 아쿠아텍스 4인 카우치 모듈소파",status:"near",length:265,depth:null,price:479000,orig:null,material:"fabric",chaise:"both",url:"https://ohou.se/productions/2149545/selling",badge:"265cm 확인",bc:"b-near",img:null,specs:[["메인 길이","265cm (5cm 미달)","near"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","아쿠아텍스 패브릭",""],["특징","오늘의집 최저가",""]]},
+{brand:"SITS",name:"Moa Set 2 체이스 소파",status:"near",length:259,depth:143,price:null,orig:null,material:"both",chaise:"both",url:"https://www.snug-interiors.com/sits-moa-set-2-chaise-sofa-rightleft/p671",badge:"259cm · 143cm 확인",bc:"b-near",img:null,specs:[["메인 길이","259cm (11cm 미달)","near"],["전체 깊이","143cm ✓","ok"],["체이스","좌/우 선택 ✓","ok"],["소재","벨벳/셔닐/부클레 등",""],["특징","폴란드 브랜드 / 영국 직구",""]]},
+{brand:"DONGSUH",name:"네플라 4인 가죽 카우치소파",status:"near",length:272,depth:null,price:699000,orig:null,material:"leather",chaise:"both",url:"https://www.dongsuhfurniture.co.kr/goods/goods_view.php?goodsNo=15336",badge:"272cm 확인",bc:"b-near",img:null,specs:[["메인 길이","272cm (8cm 미달)","near"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","PU가죽 / HR골드 스펀지",""],["특징","동서가구 / 합리적 가격",""]]},
+{brand:"ARTICLE",name:"Sven Left/Right Chaise Sectional",status:"near",length:254,depth:null,price:null,orig:null,material:"both",chaise:"both",url:"https://www.article.com/c/collection-sven",badge:"254cm 확인",bc:"b-near",img:null,specs:[["메인 길이","254cm (16cm 미달)","near"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","패브릭/가죽 선택",""],["특징","캐나다 브랜드 / 미국 배송대행",""]]},
+{brand:"IKEA",name:"SLATORP 슬라토르프 3인+긴의자",status:"near",length:256,depth:95,price:693000,orig:990000,material:"fabric",chaise:"both",url:"https://www.ikea.com/kr/ko/p/slatorp-3-seat-sofa-with-chaise-longue-vissle-yellow-green-s99577597/",badge:"256cm — 근접",bc:"b-near",img:null,specs:[["메인 길이","256cm (14cm 미달)","near"],["전체 깊이","95cm ✓","ok"],["체이스","좌/우 선택 ✓","ok"],["소재","폴리에스터 100% (재활용)",""],["특징","원가 99만원 → 69.3만원 / IKEA 공식",""]]},
+{brand:"동서가구",name:"카라 4인 천연면피가죽 카우치 소파+스툴",status:"near",length:273,depth:95,price:709000,orig:null,material:"leather",chaise:"check",url:"https://www.dongsuhfurniture.co.kr/goods/goods_view.php?goodsNo=4080",badge:"273cm 확인",bc:"b-near",img:"https://godomall.speedycdn.net/03dfe2ed0e288d77b31042956826a098/goods/4080/image/detail/4080_detail_042.jpg",specs:[["메인 길이","273cm ✓","ok"],["전체 깊이","95cm ✓","ok"],["체이스","방향 매장 확인 필요","warn"],["소재","천연면피 소가죽 + 라텍스폼 10T",""],["특징","카우치 스툴 포함 / 동서가구 공식",""]]},
+{brand:"썬퍼니처",name:"체이스 카우치 PU가죽 전동 리클라이너 소파 4인",status:"near",length:275,depth:75,price:798000,orig:null,material:"leather",chaise:"check",url:"https://prod.danawa.com/info/?pcode=10160247",badge:"275cm 확인",bc:"b-near",img:"https://img.danuri.io/catalog-image/247/160/010/2eefcb358ad74bfc9d2bc5b614bd8e21.jpg",specs:[["메인 길이","275cm ✓","ok"],["전체 깊이","75cm ✓","ok"],["체이스","방향 확인 필요","warn"],["소재","PU 인조가죽",""],["특징","전동 리클라이너 내장 / 다나와 4.8점",""]]},
+{brand:"IKEA",name:"HYLTARP 휠타르프 3인+왼쪽 긴의자",status:"near",length:262,depth:93,price:1209000,orig:null,material:"fabric",chaise:"left",url:"https://www.ikea.com/kr/ko/p/hyltarp-3-seat-sofa-w-chaise-longue-left-gransel-natural-s59489687/",badge:"262cm — 좌형 확인",bc:"b-near",img:null,specs:[["메인 길이","262cm (8cm 미달)","near"],["전체 깊이","93cm ✓","ok"],["체이스","좌형 전용 ✓","ok"],["소재","린넨+비스코스 혼방 (그란셀 내추럴)",""],["특징","좌형 명시 / 수납공간 포함",""]]},
+{brand:"바라하우스",name:"히엘 슬라이드 모션 기능성 패브릭 소파 4인",status:"near",length:295,depth:110,price:1340000,orig:null,material:"fabric",chaise:"check",url:"https://prod.danawa.com/info/?pcode=98605157",badge:"295cm — 근접",bc:"b-near",img:"https://img.danuri.io/catalog-image/157/605/098/446473a8807445e99c3cd850a5ee6daa.jpg",specs:[["메인 길이","295cm (15cm 초과)","near"],["전체 깊이","110cm ✓","ok"],["체이스","방향 확인 필요","warn"],["소재","기능성 패브릭",""],["특징","슬라이드 모션 기능 / 다나와 4.97점",""]]},
+// ── 기준 초과 ──
+{brand:"GUBI",name:"Wonder Sofa 3인+Chaise Longue",status:"exceed",length:280,depth:185,price:null,orig:null,material:"both",chaise:"both",url:"https://gubi.com/products/wonder-sofa-fully-upholstered-3-seater-with-chaise-longue?itemNumber=10054207",badge:"280cm / 깊이 185cm",bc:"b-fail",img:null,specs:[["메인 길이","280cm ✓","ok"],["전체 깊이","185cm — 35cm 초과","fail"],["체이스","좌/우 선택 ✓","ok"],["소재","소나무 프레임 / 다양한 패브릭",""],["특징","덴마크 브랜드 / 해외 직구",""]]},
+{brand:"DODOT",name:"마가렛 소파 4인 카우치형",status:"exceed",length:300,depth:152,price:null,orig:null,material:"unknown",chaise:"check",url:"https://dodot.kr/product/%EB%A7%88%EA%B0%80%EB%A0%9B-%EC%86%8C%ED%8C%8C-4%EC%9D%B8%EC%B9%B4%EC%9A%B0%EC%B9%98%ED%98%95/530/",badge:"300cm — 기준 초과",bc:"b-fail",img:"https://dodot.kr/web/product/big/202408/abff7d582b93ce31a35984702837de96.jpg",specs:[["메인 길이","300cm — 20cm 초과","fail"],["전체 깊이","151.5cm — 1.5cm 초과","warn"],["체이스","좌/우 확인 필요","warn"],["소재","상세 페이지 확인",""],["특징","깊이는 거의 조건 충족",""]]},
+{brand:"IKEA",name:"MANNARP 만나르프 4인+긴의자",status:"exceed",length:300,depth:160,price:959000,orig:null,material:"fabric",chaise:"both",url:"https://www.ikea.com/kr/ko/p/mannarp-4-seat-sofa-with-chaise-longues-gunnared-beige-s89604087/",badge:"300cm — 기준 초과",bc:"b-fail",img:"https://www.ikea.com/kr/ko/images/products/mannarp-4-seat-sofa-with-chaise-longues-gunnared-beige__1446824_pe988784_s5.jpg?f=u",specs:[["메인 길이","300cm — 20cm 초과","fail"],["전체 깊이","160cm — 10cm 초과","fail"],["체이스","좌/우 자유 변경 ✓","ok"],["높이","96cm (등쿠션 포함)",""],["특징","높은 등받이 / 합리적 가격",""]]},
+{brand:"SITS",name:"Vera Set 2 체이스 소파",status:"exceed",length:305,depth:148,price:null,orig:null,material:"both",chaise:"both",url:"https://www.snug-interiors.com/sits-vera-set-2-chaise-sofa-rightleft/p863",badge:"305cm — 기준 초과",bc:"b-fail",img:null,specs:[["메인 길이","305cm — 25cm 초과","fail"],["전체 깊이","148cm ✓","ok"],["체이스","좌/우 선택 ✓","ok"],["소재","벨벳/셔닐/페이크 양가죽 등",""],["특징","폴란드 브랜드 / 영국 직구",""]]},
+{brand:"JACKSON CHAMELEON",name:"Divine Sofa Fabric 코너 4인",status:"exceed",length:306,depth:219,price:1890000,orig:null,material:"fabric",chaise:"both",url:"https://jacksonchameleon.co.kr/product/divine-sofa-fabric/1615",badge:"306cm — 기준 초과",bc:"b-fail",img:null,specs:[["메인 길이","306cm — 26cm 초과","fail"],["전체 깊이","219cm — 69cm 초과","fail"],["체이스","좌/우 선택 ✓","ok"],["소재","패브릭 (Magical/Velvety)",""],["특징","대형 코너 소파",""]]},
+{brand:"SITS",name:"Domino Set 2 체이스 소파",status:"exceed",length:310,depth:181,price:null,orig:null,material:"both",chaise:"both",url:"https://www.snug-interiors.com/sits-domino-sofa-collection/r109",badge:"310cm — 기준 초과",bc:"b-fail",img:null,specs:[["메인 길이","310cm — 30cm 초과","fail"],["전체 깊이","181cm — 31cm 초과","fail"],["체이스","좌/우 선택 ✓","ok"],["소재","벨벳/부클레 등",""],["특징","폴란드 브랜드 / 영국 직구",""]]},
+{brand:"IKEA",name:"KIVIK 쉬비크 4인+긴의자",status:"exceed",length:318,depth:163,price:1099000,orig:null,material:"fabric",chaise:"both",url:"https://www.ikea.com/kr/ko/p/kivik-4-seat-sofa-with-chaise-longue-tibbleby-beige-grey-s29440584/",badge:"318cm — 기준 초과",bc:"b-fail",img:"https://www.ikea.com/kr/ko/images/products/kivik-4-seat-sofa-with-chaise-longue-tibbleby-beige-grey__1056150_pe848283_s5.jpg?f=u",specs:[["메인 길이","318cm — 38cm 초과","fail"],["전체 깊이","163cm — 13cm 초과","fail"],["체이스","좌/우 자유 변경 ✓","ok"],["높이","83cm",""],["특징","탄탄한 착석감 / 커버 세탁",""]]},
+{brand:"홈앤힐",name:"빌레B 카우치 아쿠아 이지클린 소파 4인",status:"exceed",length:292,depth:170,price:399500,orig:null,material:"fabric",chaise:"both",url:"https://prod.danawa.com/info/?pcode=29312741",badge:"292cm / 깊이 170cm",bc:"b-fail",img:"https://img.danuri.io/catalog-image/741/312/029/7380ddfc31094ba9873091374ff50735.jpg",specs:[["메인 길이","292cm ✓","ok"],["전체 깊이","170cm — 20cm 초과","fail"],["체이스","좌/우 선택 ✓","ok"],["소재","아쿠아 이지클린 패브릭",""],["특징","최저가 39.9만원 / 길이 조건 충족",""]]},
+{brand:"파로마",name:"솔트 카우치 아쿠아텍스 패브릭 소파 4인",status:"exceed",length:290,depth:170,price:598070,orig:null,material:"fabric",chaise:"check",url:"https://prod.danawa.com/info/?pcode=10857795",badge:"290cm / 깊이 170cm",bc:"b-fail",img:null,specs:[["메인 길이","290cm (10cm 초과)","near"],["전체 깊이","170cm — 20cm 초과","fail"],["체이스","방향 확인 필요","warn"],["소재","아쿠아텍스 기능성 패브릭",""],["특징","저가 59.8만원 / 깊이 조건 초과",""]]},
+{brand:"폴로까사",name:"생드니 카우치 아쿠아텍스 스웨이드 소파 4인",status:"exceed",length:280,depth:170,price:820920,orig:null,material:"fabric",chaise:"check",url:"https://prod.danawa.com/info/?pcode=12885764",badge:"280cm / 깊이 170cm",bc:"b-fail",img:null,specs:[["메인 길이","280cm ✓","ok"],["전체 깊이","170cm — 20cm 초과","fail"],["체이스","방향 확인 필요","warn"],["소재","아쿠아텍스 스웨이드 패브릭",""],["특징","폴로까사 / 저가형 아쿠아텍스",""]]},
+{brand:"현대리바트",name:"마카다미아 3시트 카우치 소파 4인 클리어런스",status:"exceed",length:338,depth:140,price:1229000,orig:1668000,material:"fabric",chaise:"both",url:"https://www.hyundailivart.co.kr/p/P200184737",badge:"338cm — 기준 초과",bc:"b-fail",img:"https://static.hyundailivart.co.kr/upload_mall/goods/P200184737/GM43544343_img.jpg",specs:[["메인 길이","338cm — 58cm 초과","fail"],["전체 깊이","140cm ✓","ok"],["체이스","좌/우 선택 ✓","ok"],["소재","부클레 질감 발수 기능성 패브릭",""],["특징","클리어런스 할인 / 현대리바트",""]]},
+// ── 확인 필요 ──
+{brand:"HAY",name:"Mags Sofa Combination (모듈형)",status:"check",length:null,depth:null,price:null,orig:null,material:"both",chaise:"both",url:"https://www.hay.com/products/furniture/seating/sofas/mags-sofa-collection",badge:"모듈형 — 사이즈 협의",bc:"b-warn",img:null,specs:[["메인 길이","260~310cm (모듈 조합)","warn"],["전체 깊이","모듈에 따라 가변","warn"],["체이스","좌/우 자유 구성 ✓","ok"],["소재","패브릭/가죽 다양한 옵션",""],["특징","덴마크 / TRDST·베뉴페 한국 취급",""]]},
+{brand:"LIVART",name:"누베 사선카우치 패브릭 소파",status:"check",length:null,depth:null,price:null,orig:null,material:"fabric",chaise:"both",url:"https://www.hyundailivart.co.kr/p/P200109100",badge:"사이즈 확인 필요",bc:"b-warn",img:null,specs:[["메인 길이","상세 페이지 확인","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","패브릭",""],["특징","현대리바트 공식 / 사선카우치",""]]},
+{brand:"NATUZZI",name:"La Scala 3000 카우치 소파",status:"check",length:295,depth:154,price:null,orig:null,material:"both",chaise:"both",url:"https://www.natuzzi.co.kr/",badge:"사이즈 확인 필요",bc:"b-warn",img:null,specs:[["메인 길이","~295cm (추정)","warn"],["전체 깊이","~154cm (추정)","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","패브릭 또는 가죽 선택",""],["특징","이탈리아 수입 / 쇼룸 문의",""]]},
+{brand:"ASHLEY",name:"349 좌측 카우치소파",status:"check",length:null,depth:null,price:1470000,orig:2100000,material:"unknown",chaise:"left",url:"https://ashleymall.co.kr/product/349%EC%A2%8C%EC%B8%A1-%EC%B9%B4%EC%9A%B0%EC%B9%98%EC%86%8C%ED%8C%8C/1504/",badge:"사이즈 확인 필요 · 품절",bc:"b-warn",img:"https://ashleymall.co.kr/web/product/big/202103/f2d4b30efb4b7b784eafb1ca210b2908.jpg",specs:[["메인 길이","상세 페이지 확인","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌형 전용 ✓","ok"],["소재","상세 페이지 확인",""],["특징","현재 품절 — 재입고 준비 중",""]]},
+{brand:"GLORYGAGU",name:"명품 가죽 4인 카우치소파 좌암받이",status:"check",length:null,depth:null,price:1980000,orig:null,material:"leather",chaise:"left",url:"https://www.glorygagu.com/m/product.html?branduid=25981&xcode=024&mcode=002",badge:"사이즈 확인 필요",bc:"b-warn",img:null,specs:[["메인 길이","상세 페이지 확인","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌형 전용 ✓","ok"],["소재","통가죽",""],["특징","좌암받이 고정 / 글로리가구",""]]},
+{brand:"POLOCASA",name:"라델 4인 통가죽 카우치 소파",status:"check",length:null,depth:null,price:789000,orig:1400000,material:"leather",chaise:"both",url:"https://polocasa.co.kr/product/%EB%9D%BC%EB%8D%B8-4%EC%9D%B8%EC%9A%A9-%ED%86%B5%EA%B0%80%EC%A3%BD-%EC%B9%B4%EC%9A%B0%EC%B9%98-%EC%86%8C%ED%8C%8C/335/",badge:"사이즈 확인 필요",bc:"b-warn",img:null,specs:[["메인 길이","상세 페이지 확인","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","천연 통가죽",""],["특징","폴로까사 / 가성비 가죽 소파",""]]},
+{brand:"FERM LIVING",name:"Catena Sofa with Chaise Longue",status:"check",length:278,depth:null,price:null,orig:null,material:"fabric",chaise:"both",url:"https://fermliving.com/collections/catena",badge:"사이즈 확인 필요",bc:"b-warn",img:null,specs:[["메인 길이","~246~278cm (모듈 조합)","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","혼방 패브릭 (면+린넨)",""],["특징","덴마크 / 8주 제작 / 직구",""]]},
+{brand:"LIGNE ROSET",name:"Togo Corner Sofa",status:"check",length:null,depth:null,price:null,orig:null,material:"both",chaise:"both",url:"https://andersonc-official.com/item/3910",badge:"사이즈 확인 필요",bc:"b-warn",img:null,specs:[["메인 길이","~265~300cm (코너 구성)","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","패브릭/가죽/알칸타라 선택",""],["특징","프랑스 / 앤더슨씨·VAUT 한국 취급",""]]},
+{brand:"ROCHE BOBOIS",name:"카우치 소파 (복수 모델)",status:"check",length:null,depth:null,price:null,orig:null,material:"both",chaise:"both",url:"https://www.roche-bobois.com/en-KR/",badge:"사이즈 확인 필요",bc:"b-warn",img:null,specs:[["메인 길이","250~320cm (모델별 옵션)","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","패브릭/가죽 등 다양",""],["특징","프랑스 럭셔리 / 한국 공식 쇼룸",""]]},
+{brand:"IKEA",name:"VIMLE 빔레 3인+긴의자 (머리받침)",status:"check",length:252,depth:null,price:1416000,orig:null,material:"fabric",chaise:"both",url:"https://www.ikea.com/kr/ko/p/vimle-3-seat-sofa-with-chaise-longue-with-headrest-hallarp-grey-s59399125/",badge:"252cm — 길이 확인 필요",bc:"b-warn",img:null,specs:[["메인 길이","252cm (18cm 미달)","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 자유 변경 ✓","ok"],["소재","면80%+폴리에스터20%",""],["특징","IKEA 공식 / 머리받침 포함",""]]},
+{brand:"동서가구",name:"루시 모듈형 발수패브릭 카우치 소파",status:"check",length:null,depth:null,price:578000,orig:853000,material:"fabric",chaise:"check",url:"https://www.dongsuhfurniture.co.kr/goods/goods_view.php?goodsNo=11808",badge:"사이즈 확인 필요",bc:"b-warn",img:"https://godomall.speedycdn.net/03dfe2ed0e288d77b31042956826a098/goods/11808/image/detail/11808_detail_053.jpg",specs:[["메인 길이","상세 페이지 확인","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","방향 확인 필요","warn"],["소재","발수 기능성 패브릭",""],["특징","모듈형 / 원가 85만원 → 57.8만원",""]]},
+{brand:"세계로가구",name:"목련 4인 황토볼 온열 카우치소파",status:"check",length:null,depth:null,price:550000,orig:null,material:"leather",chaise:"check",url:"https://prod.danawa.com/bridge/go_link_goods.php?link_prod_c=10443392410",badge:"사이즈 확인 필요",bc:"b-warn",img:null,specs:[["메인 길이","상세 페이지 확인","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","방향 확인 필요","warn"],["소재","PU 인조가죽",""],["특징","황토볼 온열 기능 / 55만원 저가",""]]},
+{brand:"폴로까사",name:"플란 4인 아쿠아텍스 스웨이드 코너형 소파",status:"check",length:null,depth:null,price:734000,orig:1500000,material:"fabric",chaise:"both",url:"https://polocasa.co.kr/product/%ED%94%8C%EB%9E%80-4%EC%9D%B8%EC%9A%A9-%EC%95%84%EC%BF%A0%EC%95%84%ED%85%9D%EC%8A%A4-%EC%8A%A4%EC%9B%A8%EC%9D%B4%EB%93%9C-%EC%BD%94%EB%84%88%ED%98%95-%ED%8C%A8%EB%B8%8C%EB%A6%AD-%EC%86%8C%ED%8C%8C/328/",badge:"사이즈 확인 필요",bc:"b-warn",img:"https://polocasa.co.kr/web/product/big/202108/b93e8539ce482ab3763dc30d4d1d13a1.jpg",specs:[["메인 길이","상세 페이지 확인","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌/우 선택 ✓","ok"],["소재","아쿠아텍스 스웨이드 패브릭",""],["특징","원가 150만원 → 73.4만원 / 대폭 할인",""]]},
+{brand:"글로리가구",name:"포르투갈 리스본 4인 좌형 리클라이닝 소파",status:"check",length:null,depth:null,price:980000,orig:2333000,material:"unknown",chaise:"left",url:"https://www.glorygagu.com/m/product.html?branduid=10546449&xcode=024&mcode=003",badge:"사이즈 확인 필요",bc:"b-warn",img:"https://www.glorygagu.com/shopimages/glorygagu/002003000056.jpg",specs:[["메인 길이","상세 페이지 확인","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","좌형 전용 ✓","ok"],["소재","상세 페이지 확인",""],["특징","원가 233만원 → 98만원 / 리클라이닝",""]]},
+{brand:"글로리가구",name:"티아나 4인 대리석 무늬 카우치소파",status:"check",length:null,depth:null,price:1590000,orig:3975000,material:"unknown",chaise:"check",url:"https://www.glorygagu.com/m/product.html?branduid=10546441&xcode=024&mcode=002",badge:"사이즈 확인 필요",bc:"b-warn",img:"https://www.glorygagu.com/shopimages/glorygagu/002002000230.jpg",specs:[["메인 길이","상세 페이지 확인","warn"],["전체 깊이","상세 페이지 확인","warn"],["체이스","방향 확인 필요","warn"],["소재","상세 페이지 확인",""],["특징","원가 397.5만원 → 159만원 / 대폭 할인",""]]},
+// ── 참고용 ──
+{brand:"IKEA",name:"EKTORP 엑토르프 3인+긴의자 소파",status:"ref",length:252,depth:88,price:849000,orig:null,material:"fabric",chaise:"both",url:"https://www.ikea.com/kr/ko/p/ektorp-3-seat-sofa-with-chaise-longue-kilanda-light-beige-s19509041/",badge:"252cm — 기준 미달",bc:"b-fail",img:"https://www.ikea.com/kr/ko/images/products/ektorp-3-seat-sofa-with-chaise-longue-kilanda-light-beige__1194849_pe902099_s5.jpg?f=u",specs:[["메인 길이","252cm — 18cm 미달","fail"],["전체 깊이","88cm",""],["체이스","좌/우 자유 변경 ✓","ok"],["소재","패브릭 (커버 세탁)",""],["특징","가장 저렴 / 커버 교체 가능",""]]},
+{brand:"MIKKASA",name:"이탈리안홈 마이어S 카우치 천연가죽 소파 4인",status:"ref",length:280,depth:165,price:895000,orig:null,material:"leather",chaise:"check",url:"https://prod.danawa.com/info/?pcode=5738224",badge:"단종 가능 — 참고",bc:"b-ref",img:null,specs:[["메인 길이","280cm (확인됨)","ref"],["전체 깊이","165cm / 높이 89cm","ref"],["체이스","좌/우 확인 필요","warn"],["소재","천연가죽 (소가죽)",""],["특징","가격비교 중지 — 재고 확인",""]]},
+{brand:"HANSEN",name:"카모메 카우치 패브릭 소파 4인용",status:"ref",length:272,depth:172,price:null,orig:null,material:"fabric",chaise:"check",url:"https://prod.danawa.com/info/?pcode=14495492",badge:"단종 가능 — 참고",bc:"b-ref",img:null,specs:[["메인 길이","272cm (확인됨)","ref"],["전체 깊이","172cm / 높이 82cm","ref"],["체이스","좌/우 확인 필요","warn"],["소재","패브릭 / 거위털 충전",""],["특징","가격비교 중지 — 재고 확인",""]]},
+{brand:"DAUNING",name:"카리브 카우치 천연가죽 소파 4인용",status:"ref",length:290,depth:163,price:null,orig:null,material:"leather",chaise:"check",url:"https://prod.danawa.com/info/?pcode=19947326",badge:"단종 가능 — 참고",bc:"b-ref",img:null,specs:[["메인 길이","290cm (확인됨)","ref"],["전체 깊이","163cm / 약간 초과","ref"],["체이스","좌/우 확인 필요","warn"],["소재","이탈리안 천연 소가죽",""],["특징","가격비교 중지 — 재고 확인",""]]},
+{brand:"IKEA",name:"FRIHETEN 프리헤텐 수납 코너 소파베드",status:"ref",length:230,depth:151,price:649000,orig:null,material:"fabric",chaise:"check",url:"https://www.ikea.com/kr/ko/p/friheten-corner-sofa-bed-with-storage-faringe-light-grey-s09517046/",badge:"230cm — 기준 미달",bc:"b-fail",img:"https://www.ikea.com/kr/ko/images/products/friheten-corner-sofa-bed-with-storage-faringe-light-grey__1320707_pe941322_s5.jpg?f=u",specs:[["메인 길이","230cm — 40cm 미달","fail"],["전체 깊이","151cm — 1cm 초과","warn"],["체이스","방향 확인 필요","warn"],["소재","폴리에스터 100% (재활용)",""],["특징","소파베드+수납 / 64.9만원 / 참고용",""]]},
+{brand:"IKEA",name:"MANNARP 만나르프 3인+긴의자",status:"ref",length:229,depth:95,price:709000,orig:null,material:"fabric",chaise:"both",url:"https://www.ikea.com/kr/ko/p/mannarp-3-seat-sofa-with-chaise-longue-gunnared-beige-s09604067/",badge:"229cm — 기준 미달",bc:"b-ref",img:null,specs:[["메인 길이","229cm — 41cm 미달","fail"],["전체 깊이","95cm ✓","ok"],["체이스","좌/우 자유 변경 ✓","ok"],["소재","폴리에스터 100% (재활용)",""],["특징","저가형 참고 / 4인 원하면 MANNARP 4인형으로",""]]}
+];
+
+const SECS=[
+  {statuses:['ok','near'],title:'사이즈 확인됨 — 조건 충족/근접',sub:'실측 치수 확인 / 메인 길이 250~305cm · 전체 깊이 165cm 이하'},
+  {statuses:['exceed'],title:'사이즈 확인됨 — 기준 초과',sub:'실측 치수 직접 확인 완료 / 메인 길이 또는 깊이가 조건 초과'},
+  {statuses:['check'],title:'신규 추가 — 사이즈 확인 필요',sub:'브랜드·형태 조건 부합 / 치수는 상세 페이지에서 직접 확인 필요'},
+  {statuses:['ref'],title:'참고용',sub:'단종 가능성 있거나 기준 미달 제품'},
+];
+
+let fStatus='all',fMaterial='all',fChaise='all',fSort='default',fSearch='';
+
+function fmt(n){return n?n.toLocaleString('ko-KR')+'원':'가격 확인 필요'}
+
+function cardH(s){
+  const dim=s.status==='ref'?' dimmed':'';
+  const imgH=s.img?`<div class="cimg"><img src="${s.img}" alt="${s.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.cimg').remove()"></div>`:'';
+  const specs=s.specs.map(([k,v,c])=>`<span class="sk">${k}</span><span class="sv${c?' '+c:''}">${v}</span>`).join('');
+  const origH=s.orig?`<div class="orig">${fmt(s.orig)}</div>`:'';
+  return `<div class="card${dim}">${imgH}<div class="cbody"><div class="ct"><span class="brand">${s.brand}</span><span class="badge ${s.bc}">${s.badge}</span></div><div class="pname">${s.name}</div><div class="specs">${specs}</div><div class="cf"><div class="pw"><div class="price">${fmt(s.price)}</div>${origH}</div><a href="${s.url}" target="_blank" rel="noopener" class="btn">상세보기 →</a></div></div></div>`;
+}
+
+function getFiltered(){
+  let r=S.filter(s=>{
+    if(fStatus!=='all'){const st=fStatus.split(',');if(!st.includes(s.status))return false;}
+    if(fMaterial!=='all'){if(s.material!==fMaterial&&s.material!=='both')return false;}
+    if(fChaise!=='all'){if(s.chaise!==fChaise)return false;}
+    if(fSearch){const q=fSearch.toLowerCase();if(!s.brand.toLowerCase().includes(q)&&!s.name.toLowerCase().includes(q))return false;}
+    return true;
+  });
+  if(fSort==='price-asc')r=[...r].sort((a,b)=>(a.price||9e9)-(b.price||9e9));
+  else if(fSort==='price-desc')r=[...r].sort((a,b)=>(b.price||0)-(a.price||0));
+  else if(fSort==='length-asc')r=[...r].sort((a,b)=>(a.length||999)-(b.length||999));
+  else if(fSort==='length-desc')r=[...r].sort((a,b)=>(b.length||0)-(a.length||0));
+  return r;
+}
+
+function render(){
+  const r=getFiltered();
+  document.getElementById('cnt').textContent=r.length;
+  const el=document.getElementById('content');
+  if(!r.length){el.innerHTML='<p class="no-result">조건에 맞는 제품이 없습니다. 필터를 변경해 보세요.</p>';return;}
+  const isDefault=fStatus==='all'&&fMaterial==='all'&&fChaise==='all'&&fSort==='default'&&!fSearch;
+  if(isDefault){
+    el.innerHTML=SECS.map(sec=>{
+      const items=r.filter(s=>sec.statuses.includes(s.status));
+      if(!items.length)return'';
+      return`<div class="sec"><div class="sec-head"><span class="sec-title">${sec.title} — ${items.length}개</span><span class="sec-sub">${sec.sub}</span></div><div class="grid">${items.map(cardH).join('')}</div></div>`;
+    }).join('');
+  } else {
+    const sortLabel={'default':'기본순','price-asc':'가격 낮은순','price-desc':'가격 높은순','length-asc':'길이 짧은순','length-desc':'길이 긴순'}[fSort];
+    el.innerHTML=`<div class="sec"><div class="sec-head"><span class="sec-title">필터 결과 — ${r.length}개</span><span class="sec-sub">정렬: ${sortLabel}</span></div><div class="grid">${r.map(cardH).join('')}</div></div>`;
+  }
+}
+
+document.querySelectorAll('.fc').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    const grp=this.closest('[data-group]').dataset.group;
+    this.closest('[data-group]').querySelectorAll('.fc').forEach(b=>b.classList.remove('on'));
+    this.classList.add('on');
+    const v=this.dataset.v;
+    if(grp==='status')fStatus=v;
+    else if(grp==='material')fMaterial=v;
+    else if(grp==='chaise')fChaise=v;
+    render();
+  });
+});
+document.getElementById('fsort').addEventListener('change',function(){fSort=this.value;render();});
+document.getElementById('fsearch').addEventListener('input',function(){fSearch=this.value.trim();render();});
+document.getElementById('freset').addEventListener('click',function(){
+  fStatus='all';fMaterial='all';fChaise='all';fSort='default';fSearch='';
+  document.querySelectorAll('.fc').forEach(b=>b.classList.toggle('on',b.dataset.v==='all'));
+  document.getElementById('fsort').value='default';
+  document.getElementById('fsearch').value='';
+  render();
+});
+render();
+</script>
