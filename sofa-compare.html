@@ -76,14 +76,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--text-1);line-height:1
 .ld.ok{background:var(--accent)}.ld.near{background:#2B5F8A}.ld.warn{background:var(--warn)}.ld.ref{background:var(--ref)}.ld.fail{background:var(--fail)}
 .note{font-size:.67rem;color:var(--text-3);line-height:1.65;margin-top:.35rem}
 .no-result{text-align:center;padding:4rem 1rem;color:var(--text-3);font-size:.85rem}
-/* NAV */
-.nav{background:#111;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:300}
-.nav-inner{max-width:1200px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:2rem;height:44px}
-.nav-logo{text-decoration:none;color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;letter-spacing:.02em;white-space:nowrap}
-.nav-tabs{display:flex;gap:.25rem}
-.nav-tab{text-decoration:none;display:inline-flex;align-items:center;color:rgba(255,255,255,.45);font-family:var(--f);font-size:.75rem;font-weight:600;cursor:pointer;padding:.4rem .9rem;transition:all .15s;border-bottom:2px solid transparent;height:44px;letter-spacing:-.01em}
-.nav-tab:hover{color:rgba(255,255,255,.8)}
-.nav-tab.on{color:#fff;border-bottom-color:#fff}
 /* COMING SOON */
 .coming-soon{max-width:1200px;margin:0 auto;padding:5rem 1.5rem;text-align:center}
 .coming-soon h2{font-size:1.5rem;font-weight:700;color:var(--text-1);margin-bottom:.75rem}
@@ -92,17 +84,9 @@ body{font-family:var(--f);background:var(--bg);color:var(--text-1);line-height:1
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.grid{grid-template-columns:1fr}.ph{grid-template-columns:1fr}.diag{display:none}.fsearch{width:110px}}
 </style>
+<script src="/nav.js"></script>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="/" class="nav-logo">INTERIOR COMPARE</a>
-    <div class="nav-tabs">
-      <a href="/sofa-compare.html" class="nav-tab on">🛋 소파 비교</a>
-      <a href="/chair-compare.html" class="nav-tab">💺 의자 비교</a>
-      <a href="/bed-compare.html" class="nav-tab">🛏 침대 비교</a>
-    </div>
-  </div>
-</nav>
+<site-nav></site-nav>
 <header class="ph">
   <div>
     <h1>좌체이스 소파 비교</h1>

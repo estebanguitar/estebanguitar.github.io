@@ -8,13 +8,6 @@
 :root{--bg:#EAE8E4;--surface:#F9F9F7;--surface-h:#F1F0EC;--text-1:#1C1917;--text-2:#6C6962;--text-3:#A09B97;--accent:#3A5F4E;--accent-bg:#E8F0EC;--warn:#B87020;--warn-bg:#FBF0E2;--fail:#AC2C2C;--fail-bg:#FAE9E9;--ref:#5A5A7A;--ref-bg:#EEEEF5;--border:#D2CFCB;--f:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--f);background:var(--bg);color:var(--text-1);line-height:1.5;font-size:14px}
-.nav{background:#111;position:sticky;top:0;z-index:200}
-.nav-inner{max-width:1200px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:2rem;height:44px}
-.nav-logo{text-decoration:none;color:rgba(255,255,255,.4);font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
-.nav-tabs{display:flex;gap:.15rem}
-.nav-tab{text-decoration:none;display:inline-flex;align-items:center;color:rgba(255,255,255,.45);font-size:.75rem;font-weight:600;padding:.4rem .9rem;border-bottom:2px solid transparent;height:44px;letter-spacing:-.01em;transition:color .15s}
-.nav-tab:hover{color:rgba(255,255,255,.8)}
-.nav-tab.on{color:#fff;border-bottom-color:#fff}
 .ph{background:var(--text-1);padding:1.75rem 2rem 1.5rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:start}
 .ph h1{font-size:1.35rem;font-weight:700;letter-spacing:-0.03em;color:#fff;line-height:1.15;margin-bottom:.2rem}
 .ph-sub{font-size:.68rem;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase}
@@ -84,19 +77,11 @@ body{font-family:var(--f);background:var(--bg);color:var(--text-1);line-height:1
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.grid{grid-template-columns:1fr}.ph{grid-template-columns:1fr}.diag{display:none}.fbar-inner{gap:.35rem}.fsearch{width:120px}}
 </style>
+<script src="/nav.js"></script>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="/" class="nav-logo">Interior Compare</a>
-    <div class="nav-tabs">
-      <a href="/sofa-compare.html" class="nav-tab">&#x1F6CB; 소파 비교</a>
-      <a href="/chair-compare.html" class="nav-tab">&#x1F4BA; 의자 비교</a>
-      <a href="/bed-compare.html" class="nav-tab on">&#x1F6CF; 침대 비교</a>
-    </div>
-  </div>
-</nav>
+<site-nav></site-nav>
 
 <header class="ph">
   <div>
