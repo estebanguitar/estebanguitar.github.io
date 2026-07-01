@@ -603,6 +603,26 @@ const PRODUCT_DETAIL_URLS=Object.freeze({
   '일룸 세르크 퀸 수납침대 프레임':'https://www.iloom.com',
 });
 
+const BRAND_SEARCH_URLS=Object.freeze({
+  '에이스침대':'https://acebedmall.co.kr/front/search?keyword=',
+  '씰리(Sealy)':'https://sealy.co.kr/?s=',
+  '시몬스(Simmons)':'https://www.simmons.co.kr/?s=',
+  '한샘':'https://store.hanssem.com/search?query=',
+  '현대리바트':'https://www.hyundailivart.co.kr/search?keyword=',
+  '잉글랜더':'https://www.englander.co.kr/?s=',
+  '템퍼(Tempur)':'https://www.tempur.co.kr/?s=',
+  '지누스(Zinus)':'https://www.zinus.co.kr/?s=',
+  '까사미아':'https://www.casamia.co.kr/?s=',
+  '에몬스':'https://www.emons.co.kr/?s=',
+  '스프링에어':'https://www.springair.co.kr/?s=',
+  '글로리가구':'https://www.glorygagu.com/?s=',
+  '보루네오가구':'https://www.borneo.co.kr/?s=',
+  '코코매트':'https://www.cocomat.kr/?s=',
+  '일룸':'https://www.iloom.com/?s=',
+  '폴로까사':'https://polocasa.co.kr/?s=',
+  '동서가구':'https://www.dongsuhfurniture.co.kr/?s=',
+});
+
 const NON_DETAIL_URL_PATTERNS=[
   /^https?:\/\/(?:www\.)?acebedmall\.co\.kr\/?$/,
   /^https?:\/\/(?:www\.)?sealy\.co\.kr\/?$/,
@@ -618,6 +638,8 @@ function productDetailUrl(s){
   const override=PRODUCT_DETAIL_URLS[s.name];
   if(override)return override;
   if(s.url&&!NON_DETAIL_URL_PATTERNS.some(pattern=>pattern.test(s.url)))return s.url;
+  const brandSearch=BRAND_SEARCH_URLS[s.brand];
+  if(brandSearch)return brandSearch+encodeURIComponent(s.name);
   return `https://search.shopping.naver.com/search/all?query=${encodeURIComponent(s.name)}`;
 }
 
