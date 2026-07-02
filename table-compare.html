@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4인 식탁 비교 — Interior Compare</title>
+<style>
+:root{--bg:#EAE8E4;--surface:#F9F9F7;--surface-h:#F1F0EC;--text-1:#1C1917;--text-2:#6C6962;--text-3:#A09B97;--accent:#3A5F4E;--accent-bg:#E8F0EC;--warn:#B87020;--warn-bg:#FBF0E2;--fail:#AC2C2C;--fail-bg:#FAE9E9;--ref:#5A5A7A;--ref-bg:#EEEEF5;--border:#D2CFCB;--f:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f);background:var(--bg);color:var(--text-1);line-height:1.5;font-size:14px}
+.ph{background:var(--text-1);padding:1.75rem 2rem 1.5rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:start}
+.ph h1{font-size:1.35rem;font-weight:700;letter-spacing:-0.03em;color:#fff;line-height:1.15;margin-bottom:.2rem}
+.ph-sub{font-size:.68rem;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;align-items:center}
+.chip{border:1px solid rgba(255,255,255,.18);padding:.22rem .65rem;font-size:.72rem;color:rgba(255,255,255,.82);display:flex;align-items:center;gap:.35rem}
+.chip-k{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.38)}
+.chip-v{font-weight:600}
+.naver-btn{display:inline-flex;align-items:center;gap:.4rem;background:#03C75A;color:#fff;text-decoration:none;font-size:.71rem;font-weight:700;letter-spacing:.02em;padding:.32rem .8rem;margin-top:1rem}
+.naver-btn:hover{background:#02b050}
+.ni{width:13px;height:13px;fill:#fff}
+.diag{display:block}
+.fbar{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:44px;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.fbar-inner{max-width:1200px;margin:0 auto;padding:.6rem 1.5rem;display:flex;flex-wrap:wrap;gap:.5rem .75rem;align-items:center}
+.fg{display:flex;align-items:center;gap:.35rem;flex-shrink:0}
+.fl{font-size:.6rem;color:var(--text-3);font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+.fchips{display:flex;gap:.2rem}
+.fc{border:1px solid var(--border);background:none;padding:.2rem .55rem;font-size:.68rem;font-family:var(--f);cursor:pointer;color:var(--text-2);transition:all .12s;line-height:1.4}
+.fc:hover{background:var(--surface-h);border-color:var(--text-3)}
+.fc.on{background:var(--text-1);color:#fff;border-color:var(--text-1)}
+.fsort{border:1px solid var(--border);background:var(--surface);padding:.2rem .5rem;font-size:.68rem;font-family:var(--f);color:var(--text-2);cursor:pointer;height:26px}
+.fsearch{border:1px solid var(--border);background:var(--surface);padding:.2rem .55rem;font-size:.68rem;font-family:var(--f);color:var(--text-1);width:150px;outline:none;height:26px}
+.fsearch:focus{border-color:var(--accent)}
+.fcount{margin-left:auto;font-size:.69rem;color:var(--text-3);display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.freset{border:none;background:none;font-size:.67rem;color:var(--accent);cursor:pointer;text-decoration:underline;font-family:var(--f);padding:0}
+.main{max-width:1200px;margin:0 auto;padding:1.5rem 1.5rem 3rem}
+.sec{margin-bottom:1.75rem}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.65rem;padding-bottom:.45rem;border-bottom:2px solid var(--border)}
+.sec-title{font-size:.79rem;font-weight:700;letter-spacing:-.01em}
+.sec-sub{font-size:.67rem;color:var(--text-3)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);background:var(--border);border:1px solid var(--border);gap:1px}
+.card{background:var(--surface);display:flex;flex-direction:column;transition:background .1s;overflow:hidden}
+.card:hover{background:var(--surface-h)}
+.card.dimmed{opacity:.65}
+.cimg{height:160px;overflow:hidden;background:var(--bg);flex-shrink:0}
+.cimg img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.card:hover .cimg img{transform:scale(1.04)}
+.cbody{padding:1.125rem 1.375rem;display:flex;flex-direction:column;gap:.75rem;flex:1}
+.ct{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.brand{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);font-weight:700}
+.badge{font-size:.62rem;font-weight:700;padding:.18rem .5rem;white-space:nowrap;flex-shrink:0}
+.b-ok{background:var(--accent-bg);color:var(--accent)}
+.b-near{background:#E4EFF9;color:#2B5F8A}
+.b-warn{background:var(--warn-bg);color:var(--warn)}
+.b-ref{background:var(--ref-bg);color:var(--ref)}
+.b-fail{background:var(--fail-bg);color:var(--fail)}
+.pname{font-size:.88rem;font-weight:700;letter-spacing:-.015em;line-height:1.3;text-wrap:balance}
+.specs{display:grid;grid-template-columns:4.5rem 1fr;gap:.28rem .45rem;font-size:.74rem;flex:1}
+.sk{color:var(--text-3);font-size:.68rem}
+.sv{color:var(--text-2);font-weight:500}
+.sv.ok{color:var(--accent);font-weight:700}
+.sv.near{color:#2B5F8A;font-weight:700}
+.sv.warn{color:var(--warn)}
+.sv.fail{color:var(--fail);font-weight:700}
+.sv.ref{color:var(--ref)}
+.cf{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.pw{display:flex;flex-direction:column;gap:.08rem}
+.price{font-size:.9rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}
+.orig{font-size:.65rem;color:var(--text-3);text-decoration:line-through;font-variant-numeric:tabular-nums}
+.btn{display:inline-block;background:var(--text-1);color:#fff;text-decoration:none;font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:.4rem .8rem;transition:background .12s;white-space:nowrap;flex-shrink:0}
+.btn:hover{background:var(--accent)}
+.legend{display:flex;gap:1.1rem;flex-wrap:wrap;padding:.75rem 0 .5rem;border-top:1px solid var(--border);font-size:.7rem;color:var(--text-2)}
+.li{display:flex;align-items:center;gap:.35rem}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ld.ok{background:var(--accent)}.ld.near{background:#2B5F8A}.ld.warn{background:var(--warn)}.ld.ref{background:var(--ref)}.ld.fail{background:var(--fail)}
+.note{font-size:.67rem;color:var(--text-3);line-height:1.65;margin-top:.35rem}
+.no-result{text-align:center;padding:4rem 1rem;color:var(--text-3);font-size:.85rem}
+.setrows{margin:.1rem 0 .2rem;border-top:1px solid var(--border);padding-top:.55rem}
+.setrow{display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-2);padding:.12rem 0}
+.setrow.total{color:var(--text-1);font-weight:800;border-top:1px dashed var(--border);margin-top:.25rem;padding-top:.35rem}
+.setrow .sr-k{color:var(--text-3)}
+.setrow .sr-v{font-variant-numeric:tabular-nums}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.ph{grid-template-columns:1fr}.diag{display:none}.fbar-inner{gap:.35rem}.fsearch{width:120px}}
+</style>
+<script src="/nav.js"></script>
+</head>
+<body>
+
+<site-nav></site-nav>
+
+<header class="ph">
+  <div>
+    <h1>4인 식탁 비교</h1>
+    <p class="ph-sub">총 <span id="hcnt">0</span>개 — 식탁 + 의자4개 세트가 200만원 이하</p>
+    <div class="chips">
+      <div class="chip"><span class="chip-k">4인</span><span class="chip-v">폭 1200~1500mm</span></div>
+      <div class="chip"><span class="chip-k">세트</span><span class="chip-v">식탁+의자4개 ≤ 200만원</span></div>
+      <a href="https://search.shopping.naver.com/search/all?query=4%EC%9D%B8+%EC%8B%9D%ED%83%81+%EC%84%B8%ED%8A%B8" target="_blank" rel="noopener" class="naver-btn">
+        <svg class="ni" viewBox="0 0 24 24"><path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/></svg>
+        네이버 쇼핑 검색
+      </a>
+    </div>
+  </div>
+  <svg class="diag" width="110" height="96" viewBox="0 0 110 96" fill="none" aria-hidden="true">
+    <rect x="20" y="30" width="70" height="45" rx="3" fill="rgba(58,95,78,.25)" stroke="rgba(58,95,78,.7)" stroke-width="1.5"/>
+    <rect x="20" y="20" width="70" height="14" rx="3" fill="rgba(58,95,78,.35)" stroke="rgba(58,95,78,.8)" stroke-width="1.5"/>
+    <rect x="28" y="34" width="24" height="24" rx="2" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+    <rect x="58" y="34" width="24" height="24" rx="2" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+    <line x1="20" y1="75" x2="22" y2="88" stroke="rgba(255,255,255,.3)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="88" y1="75" x2="86" y2="88" stroke="rgba(255,255,255,.3)" stroke-width="3" stroke-linecap="round"/>
+    <text x="55" y="14" fill="rgba(255,255,255,.35)" font-size="5.5" text-anchor="middle" font-family="sans-serif" font-weight="bold">4인 식탁</text>
+  </svg>
+</header>
+
+<div class="fbar">
+  <div class="fbar-inner">
+    <div class="fg">
+      <span class="fl">상판</span>
+      <div class="fchips" data-group="material">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="wood">원목</button>
+        <button class="fc" data-v="ceramic">세라믹</button>
+        <button class="fc" data-v="glass">강화유리</button>
+        <button class="fc" data-v="marble">대리석</button>
+        <button class="fc" data-v="veneer">무늬목·MDF</button>
+        <button class="fc" data-v="metal">철제</button>
+      </div>
+    </div>
+    <div class="fg">
+      <span class="fl">형태</span>
+      <div class="fchips" data-group="shape">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="rect">직사각</button>
+        <button class="fc" data-v="round">원형</button>
+        <button class="fc" data-v="oval">타원</button>
+        <button class="fc" data-v="ext">확장형</button>
+      </div>
+    </div>
+    <div class="fg">
+      <span class="fl">인원</span>
+      <div class="fchips" data-group="seat">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="4">4인</button>
+        <button class="fc" data-v="4-6">4~6인</button>
+      </div>
+    </div>
+    <div class="fg">
+      <span class="fl">예산</span>
+      <div class="fchips" data-group="budget">
+        <button class="fc on" data-v="all">전체</button>
+        <button class="fc" data-v="in">200만 이하만</button>
+      </div>
+    </div>
+    <div class="fg">
+      <span class="fl">정렬</span>
+      <select class="fsort" id="fsort">
+        <option value="default">기본순</option>
+        <option value="price-asc">세트 낮은순</option>
+        <option value="price-desc">세트 높은순</option>
+      </select>
+    </div>
+    <div class="fg">
+      <input class="fsearch" id="fsearch" type="search" placeholder="브랜드·제품명 검색" autocomplete="off">
+    </div>
+    <div class="fcount"><span id="cnt">0</span>개 표시 <button class="freset" id="freset">초기화</button></div>
+  </div>
+</div>
+
+<main class="main">
+  <div id="content"></div>
+  <div class="legend">
+    <div class="li"><div class="ld ok"></div>4인 확인 · 세트 200만 이하</div>
+    <div class="li"><div class="ld near"></div>예산 근접 / 4~6인 겸용</div>
+    <div class="li"><div class="ld fail"></div>200만 초과 (참고용)</div>
+    <div class="li"><div class="ld ref"></div>단종 가능 / 참고용</div>
+  </div>
+  <p class="note">※ 가격은 2026-07-02 기준 · 변동 가능 &nbsp;|&nbsp; ※ 4인 식탁: 폭 1200~1500mm &nbsp;|&nbsp; ※ 세트 합계 = 식탁 + 의자 개당가격 × 4 &nbsp;|&nbsp; ※ 의자 가격은 개당 표기</p>
+</main>
+
+<script>
+// size: "queen"=1500x2000mm / "king"=1600x2000mm
+const TABLES=[
+  {brand:"시드",name:"시드 세라믹 4인 식탁 A",status:"ok",material:"ceramic",shape:"rect",seat:"4",price:790000,orig:null,url:"https://example.com/a",img:null,chairName:"시드 의자 A",chairPrice:90000,setTotal:1150000,badge:"4인 세트 확인",bc:"b-ok",specs:[["상판","세라믹 1400×800mm","ok"],["사이즈","4인 폭1400×깊이800mm ✓","ok"],["형태","직사각",""],["다리","금속",""],["의자","의자 ×4",""]]},
+  {brand:"시드",name:"시드 원목 4인 식탁 B",status:"ok",material:"wood",shape:"rect",seat:"4",price:990000,orig:1200000,url:"https://example.com/b",img:null,chairName:"시드 의자 B",chairPrice:150000,setTotal:1590000,badge:"4인 세트 확인",bc:"b-ok",specs:[["상판","원목 1200×800mm","ok"],["사이즈","4인 폭1200×깊이800mm ✓","ok"],["형태","직사각",""],["다리","원목",""],["의자","의자 ×4",""]]},
+  {brand:"시드",name:"시드 확장형 4~6인 식탁 C",status:"near",material:"veneer",shape:"ext",seat:"4-6",price:850000,orig:null,url:"https://example.com/c",img:null,chairName:"시드 의자 C",chairPrice:120000,setTotal:1330000,badge:"예산 근접",bc:"b-near",specs:[["상판","무늬목 1400~1800mm","ok"],["사이즈","4~6인 겸용","near"],["형태","확장형",""],["다리","금속",""],["의자","의자 ×4",""]]},
+  {brand:"시드",name:"시드 대리석 4인 식탁 D",status:"exceed",material:"marble",shape:"round",seat:"4",price:1900000,orig:null,url:"https://example.com/d",img:null,chairName:"시드 의자 D",chairPrice:100000,setTotal:2300000,badge:"예산 초과",bc:"b-fail",specs:[["상판","대리석 Ø1200mm","ok"],["사이즈","4인 원형 Ø1200 ✓","ok"],["형태","원형",""],["다리","금속",""],["의자","의자 ×4",""]]},
+  {brand:"시드",name:"시드 유리 4인 식탁 E",status:"ok",material:"glass",shape:"rect",seat:"4",price:450000,orig:null,url:"https://example.com/e",img:null,chairName:"시드 의자 E",chairPrice:70000,setTotal:730000,badge:"4인 세트 확인",bc:"b-ok",specs:[["상판","강화유리 1300×800mm","ok"],["사이즈","4인 폭1300×깊이800mm ✓","ok"],["형태","직사각",""],["다리","철제",""],["의자","의자 ×4",""]]},
+];
+
+const SECS=[
+  {key:'ok',statuses:['ok'],title:'4인 확인 · 세트 200만원 이하',sub:'4인 사이즈 + 예산 충족'},
+  {key:'near',statuses:['near','check'],title:'예산 근접 / 확인 권장',sub:'4~6인 겸용 또는 예산 근접'},
+  {key:'other',statuses:['exceed','ref'],title:'예산 초과 / 참고용',sub:'세트 200만원 초과 또는 단종'},
+];
+
+let fMaterial='all',fShape='all',fSeat='all',fBudget='all',fSort='default',fSearch='';
+
+function fmt(n){return n?n.toLocaleString('ko-KR')+'원':'가격 확인 필요'}
+
+function productDetailUrl(s){
+  if(s.url)return s.url;
+  return `https://search.shopping.naver.com/search/all?query=${encodeURIComponent(s.name)}`;
+}
+
+function cardH(s){
+  const dim=(s.status==='ref'||s.status==='exceed')?' dimmed':'';
+  const imgH=s.img?`<div class="cimg"><img src="${s.img}" alt="${s.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.cimg').remove()"></div>`:'';
+  const sp=s.specs.map(([k,v,c])=>`<span class="sk">${k}</span><span class="sv${c?' '+c:''}">${v}</span>`).join('');
+  const pr=`<div class="setrows"><div class="setrow"><span class="sr-k">식탁</span><span class="sr-v">${fmt(s.price)}</span></div><div class="setrow"><span class="sr-k">의자(개당)</span><span class="sr-v">${fmt(s.chairPrice)} ×4</span></div><div class="setrow total"><span class="sr-k">세트 합계</span><span class="sr-v">${fmt(s.setTotal)}</span></div></div>`;
+  return `<div class="card${dim}">${imgH}<div class="cbody"><div class="ct"><span class="brand">${s.brand}</span><span class="badge ${s.bc}">${s.badge}</span></div><div class="pname">${s.name}</div><div class="specs">${sp}</div>${pr}<div class="cf"><a href="${productDetailUrl(s)}" target="_blank" rel="noopener" class="btn">식탁 상세보기 →</a></div></div></div>`;
+}
+
+function passes(s){
+  if(fMaterial!=='all'&&s.material!==fMaterial)return false;
+  if(fShape!=='all'&&s.shape!==fShape)return false;
+  if(fSeat!=='all'&&s.seat!==fSeat)return false;
+  if(fBudget==='in'&&!(s.setTotal<=2000000))return false;
+  if(fSearch){const q=fSearch.toLowerCase();if(!s.brand.toLowerCase().includes(q)&&!s.name.toLowerCase().includes(q))return false;}
+  return true;
+}
+
+function getSorted(arr){
+  if(fSort==='price-asc')return[...arr].sort((a,b)=>(a.setTotal||9e9)-(b.setTotal||9e9));
+  if(fSort==='price-desc')return[...arr].sort((a,b)=>(b.setTotal||0)-(a.setTotal||0));
+  return arr;
+}
+
+function render(){
+  const r=TABLES.filter(passes);
+  document.getElementById('cnt').textContent=r.length;
+  document.getElementById('hcnt').textContent=TABLES.length;
+  const el=document.getElementById('content');
+  if(!r.length){el.innerHTML='<p class="no-result">조건에 맞는 제품이 없습니다.</p>';return;}
+  const isDefault=fMaterial==='all'&&fShape==='all'&&fSeat==='all'&&fBudget==='all'&&fSort==='default'&&!fSearch;
+  if(isDefault){
+    el.innerHTML=SECS.map(sec=>{
+      const items=getSorted(r.filter(s=>sec.statuses.includes(s.status)));
+      if(!items.length)return'';
+      return`<div class="sec"><div class="sec-head"><span class="sec-title">${sec.title} — ${items.length}개</span><span class="sec-sub">${sec.sub}</span></div><div class="grid">${items.map(cardH).join('')}</div></div>`;
+    }).join('');
+  } else {
+    const sorted=getSorted(r);
+    el.innerHTML=`<div class="sec"><div class="sec-head"><span class="sec-title">필터 결과 — ${sorted.length}개</span><span class="sec-sub">정렬: ${{default:'기본순','price-asc':'세트 낮은순','price-desc':'세트 높은순'}[fSort]}</span></div><div class="grid">${sorted.map(cardH).join('')}</div></div>`;
+  }
+}
+
+document.querySelectorAll('.fc').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    const g=this.closest('[data-group]').dataset.group;
+    this.closest('[data-group]').querySelectorAll('.fc').forEach(b=>b.classList.remove('on'));
+    this.classList.add('on');
+    const v=this.dataset.v;
+    if(g==='material')fMaterial=v;
+    else if(g==='shape')fShape=v;
+    else if(g==='seat')fSeat=v;
+    else if(g==='budget')fBudget=v;
+    render();
+  });
+});
+document.getElementById('fsort').addEventListener('change',function(){fSort=this.value;render();});
+document.getElementById('fsearch').addEventListener('input',function(){fSearch=this.value.trim();render();});
+document.getElementById('freset').addEventListener('click',function(){
+  fMaterial='all';fShape='all';fSeat='all';fBudget='all';fSort='default';fSearch='';
+  document.querySelectorAll('.fc').forEach(b=>b.classList.toggle('on',b.dataset.v==='all'));
+  document.getElementById('fsort').value='default';
+  document.getElementById('fsearch').value='';
+  render();
+});
+render();
+</script>
+</body>
+</html>
