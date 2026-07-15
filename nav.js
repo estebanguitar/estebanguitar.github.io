@@ -19,10 +19,8 @@ customElements.define('site-nav', class extends HTMLElement {
       + '<a href="/" class="nav-logo">INTERIOR COMPARE</a>'
       + '<div class="nav-tabs">'
       + '<a href="/sofa-compare.html" class="nav-tab' + on('/sofa-compare.html') + '">🛋 소파 비교</a>'
-      + '<a href="/chair-compare.html" class="nav-tab' + on('/chair-compare.html') + '">💺 의자 비교</a>'
       + '<a href="/bed-compare.html" class="nav-tab' + on('/bed-compare.html') + '">🛏 침대 비교</a>'
       + '<a href="/table-compare.html" class="nav-tab' + on('/table-compare.html') + '">🍽 식탁 비교</a>'
-      + '<a href="/tile-compare.html" class="nav-tab' + on('/tile-compare.html') + '">🧱 타일 비교</a>'
       + '</div></div></nav>';
   }
 });
