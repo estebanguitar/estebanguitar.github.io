@@ -306,7 +306,15 @@ lb.onclick=e=>{if(e.target===lb)closeLB();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLB();});
 
 // ===== 좋아요 (Firebase 실시간 공유 / config 없으면 localStorage 폴백) =====
-const FB_CONFIG=null; // ← 여기에 Firebase config 객체(databaseURL 포함)를 넣으면 실시간 공유 활성화
+const FB_CONFIG={ // Firebase Realtime Database (공개 web config — 보안은 DB 규칙으로 처리)
+  apiKey:"AIzaSyCTjdrPjmsXHHHAK-xrszHar9h27xWncuA",
+  authDomain:"interior-tiles.firebaseapp.com",
+  databaseURL:"https://interior-tiles-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"interior-tiles",
+  storageBucket:"interior-tiles.firebasestorage.app",
+  messagingSenderId:"245820017880",
+  appId:"1:245820017880:web:f664bc1ff45efb7b4adbad"
+};
 const LS_KEY="tileLikes";
 const byId={}; TILES.forEach(t=>byId[t.id]=t);
 let fbLikes=null, fbReady=false, lbTile=null, heartEls={};
