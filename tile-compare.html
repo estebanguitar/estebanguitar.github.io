@@ -80,35 +80,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--text-1);line-height:1
 .lb-heart:hover{border-color:#d34836}
 .lb-heart.on{background:#d34836;color:#fff;border-color:#d34836}
 .lb-heart.on::before{content:"\2665"}
-/* VISUALIZER */
-.viz{background:var(--surface);border:1px solid var(--border);margin:1.25rem 0 .5rem;overflow:hidden}
-.viz-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;padding:.7rem 1rem;border-bottom:1px solid var(--border)}
-.viz-title{font-size:.82rem;font-weight:700;letter-spacing:-.01em}
-.viz-sub{font-size:.66rem;color:var(--text-3);font-weight:400;margin-left:.4rem}
-.viz-controls{display:flex;align-items:center;gap:.35rem}
-.surf-btn{border:1px solid var(--border);background:none;padding:.25rem .7rem;font-size:.7rem;font-family:var(--f);cursor:pointer;color:var(--text-2);transition:all .12s}
-.surf-btn:hover{border-color:var(--text-3)}
-.surf-btn.on{background:var(--text-1);color:#fff;border-color:var(--text-1)}
-.viz-stage{position:relative;max-width:600px;margin:.9rem auto;aspect-ratio:900/480;background:#c9c6c1;overflow:hidden;border:1px solid var(--border)}
-.viz-bg{position:absolute;inset:0;width:100%;height:100%;display:block}
-.pz{position:absolute;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.28))}
-.pz-vanity{left:6%;top:6%;width:27%}
-.pz-towel{left:40%;top:23%;width:23%}
-.pz-basin{left:8%;top:39%;width:21%}
-.pz-toilet{left:31%;top:44%;width:15%}
-.pz-shower{left:64%;top:31%;width:18%}
-.pz-slidebar{left:85%;top:15%;width:7.5%}
-.viz-cur{display:flex;align-items:center;gap:.7rem;padding:.6rem 1rem;border-top:1px solid var(--border);font-size:.72rem;min-height:44px}
-.viz-cur img{width:34px;height:34px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
-.viz-cur .vc-k{color:var(--text-3);font-size:.62rem;text-transform:uppercase;letter-spacing:.06em}
-.viz-cur .vc-name{font-weight:700}
-.viz-cur .vc-act{margin-left:auto;display:flex;gap:.4rem}
-.viz-cur .vc-btn{border:1px solid var(--border);background:var(--surface);font-size:.66rem;font-family:var(--f);padding:.22rem .55rem;cursor:pointer;color:var(--text-2)}
-.viz-cur .vc-btn:hover{border-color:var(--accent);color:var(--accent)}
-.fab{position:fixed;right:1rem;bottom:1rem;z-index:200;background:var(--text-1);color:#fff;border:none;border-radius:2rem;padding:.55rem .95rem;font-size:.72rem;font-family:var(--f);font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.22);display:none;align-items:center;gap:.3rem}
-.fab:hover{background:var(--accent)}
-.toast{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%) translateY(1.5rem);z-index:400;background:var(--text-1);color:#fff;font-size:.72rem;font-weight:600;padding:.5rem .9rem;border-radius:.3rem;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .no-result{text-align:center;padding:5rem 1rem;color:var(--text-3);font-size:.9rem}
 /* LIGHTBOX */
 .lb{position:fixed;inset:0;z-index:500;background:rgba(20,18,16,.86);display:none;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(3px)}
@@ -170,35 +141,9 @@ footer{border-top:1px solid var(--border);padding:1.25rem 1.5rem;text-align:cent
 </div>
 
 <div class="main">
-  <section class="viz" id="viz">
-    <div class="viz-head">
-      <div class="viz-title">🛁 욕실 미리보기<span class="viz-sub">타일을 클릭하면 벽·바닥 전체가 해당 타일로 바뀝니다 · 대림바스 실제 제품 기준</span></div>
-    </div>
-    <div class="viz-stage" id="viz-stage">
-      <svg class="viz-bg" viewBox="0 0 900 480" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-          <pattern id="wallPat" patternUnits="userSpaceOnUse" width="150" height="150"><rect width="150" height="150" fill="#cdcac5"/><image id="wallImg" href="" x="3" y="3" width="144" height="144" preserveAspectRatio="xMidYMid slice"/></pattern>
-          <pattern id="floorPat" patternUnits="userSpaceOnUse" width="172" height="172"><rect width="172" height="172" fill="#c4c1bc"/><image id="floorImg" href="" x="3" y="3" width="166" height="166" preserveAspectRatio="xMidYMid slice"/></pattern>
-        </defs>
-        <rect x="0" y="0" width="900" height="312" fill="url(#wallPat)"/>
-        <rect x="0" y="312" width="900" height="168" fill="url(#floorPat)"/>
-        <rect x="0" y="310" width="900" height="4" fill="rgba(0,0,0,.13)"/>
-      </svg>
-      <img class="pz pz-vanity" src="products/vanity.png" alt="거울 슬라이드장 DBF12">
-      <img class="pz pz-towel" src="products/accessory.png" alt="악세서리 430B">
-      <img class="pz pz-basin" src="products/basin.png" alt="세면기 DL521">
-      <img class="pz pz-toilet" src="products/toilet.png" alt="변기 DC1218R">
-      <img class="pz pz-shower" src="products/shower_faucet.png" alt="샤워수전 FL0920MB">
-      <img class="pz pz-slidebar" src="products/slide_bar.png" alt="슬라이드바 FA195MB">
-    </div>
-    <div class="viz-cur" id="viz-cur"></div>
-  </section>
   <div class="grid" id="grid"></div>
   <div class="no-result" id="empty" style="display:none">조건에 맞는 타일이 없습니다.</div>
 </div>
-
-<button class="fab" id="fab">🛁 미리보기 ↑</button>
-<div class="toast" id="toast"></div>
 
 <div class="lb" id="lb">
   <div class="lb-card" id="lb-card"></div>
@@ -315,7 +260,7 @@ function render(){
   grid.innerHTML='';heartEls={};
   const frag=document.createDocumentFragment();
   list.forEach(t=>{
-    const c=document.createElement('div');c.className='card';c.onclick=()=>applyTile(t);
+    const c=document.createElement('div');c.className='card';c.onclick=()=>openLB(t);
     const dot=COLOR_HEX[t.colorFamily]||'#ccc';
     c.innerHTML=`<div class="cimg"><img loading="lazy" src="${t.img}" alt="${(t.name||'').replace(/"/g,'')}">`
       +`<button class="cheart${isLiked(t)?' on':''}" aria-label="좋아요"></button>`
@@ -405,30 +350,6 @@ if(FB_CONFIG){
     .catch(()=>console.warn('Firebase 로드 실패 — 로컬 모드'));
 }
 updateLikeUI();
-
-// ===== 욕실 미리보기 (비주얼라이저) — 타일 클릭 시 벽·바닥 동시 적용 =====
-const wallImg=document.getElementById('wallImg'), floorImg=document.getElementById('floorImg');
-function applyTile(t,silent){
-  wallImg.setAttribute('href',t.img); floorImg.setAttribute('href',t.img);
-  updateVizCur(t);
-  if(!silent)toast('벽·바닥에 적용됨 — '+(t.name||t.code||''));
-}
-function updateVizCur(t){
-  const el=document.getElementById('viz-cur');
-  el.innerHTML=`<img src="${t.img}" alt=""><div><div class="vc-k">선택 타일 · 벽·바닥</div>`
-    +`<div class="vc-name">${t.name||t.code||'-'} <span style="color:var(--text-3);font-weight:400">${t.size||''} ${t.finish||''}${t.brand?' · '+t.brand:''}</span></div></div>`
-    +`<div class="vc-act"><button class="vc-btn" id="vc-like">${isLiked(t)?'♥ 좋아요됨':'♡ 좋아요'}</button><button class="vc-btn" id="vc-detail">상세</button></div>`;
-  document.getElementById('vc-like').onclick=()=>{setLike(t);updateVizCur(t);};
-  document.getElementById('vc-detail').onclick=()=>openLB(t);
-}
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1600);}
-const fab=document.getElementById('fab');
-window.addEventListener('scroll',()=>{const r=document.getElementById('viz').getBoundingClientRect();fab.style.display=(r.bottom<50)?'inline-flex':'none';});
-fab.onclick=()=>document.getElementById('viz').scrollIntoView({behavior:'smooth'});
-(function initViz(){
-  const w=TILES.find(t=>t.colorFamily==='화이트'&&t.category==='포세린'&&t.finish==='무광')||TILES.find(t=>t.colorFamily==='화이트')||TILES[0];
-  applyTile(w,true);
-})();
 
 render();
 </script>
