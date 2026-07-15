@@ -28,7 +28,17 @@ body{font-family:var(--f);background:var(--bg);color:var(--text-1);line-height:1
 .fc:hover{background:var(--surface-h);border-color:var(--text-3)}
 .fc.on{background:var(--text-1);color:#fff;border-color:var(--text-1)}
 .fc .dot{width:9px;height:9px;border-radius:50%;border:1px solid rgba(0,0,0,.15);flex-shrink:0}
-.fsel{border:1px solid var(--border);background:var(--surface);padding:.2rem .5rem;font-size:.68rem;font-family:var(--f);color:var(--text-2);cursor:pointer;height:26px;max-width:170px}
+.fexp{border:1px solid var(--border);background:var(--surface);padding:.2rem .55rem;font-size:.68rem;font-family:var(--f);color:var(--text-2);cursor:pointer;height:26px;display:inline-flex;align-items:center;gap:.32rem;transition:all .12s}
+.fexp:hover{border-color:var(--text-3)}
+.fexp.on{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);font-weight:700}
+.fexp .fx{font-weight:700;opacity:.5;transition:transform .15s;font-size:.8rem;line-height:1}
+.fexp.open .fx{transform:rotate(45deg)}
+.fexp .fn{background:var(--accent);color:#fff;border-radius:8px;padding:0 .32rem;font-size:.6rem;font-weight:700;min-width:14px;text-align:center;line-height:1.5}
+.fpanel{flex-basis:100%;width:100%;padding:.55rem 0 .15rem;margin-top:.4rem;border-top:1px dashed var(--border);display:flex;flex-wrap:wrap;gap:.28rem;align-items:center;max-height:46vh;overflow-y:auto}
+.fpanel[hidden]{display:none}
+.fpanel .fgh{flex-basis:100%;font-size:.58rem;color:var(--text-3);font-weight:700;letter-spacing:.06em;margin:.35rem 0 .05rem}
+.fpanel .fgh:first-child{margin-top:0}
+.fc .cn{opacity:.45;font-size:.9em;margin-left:.1rem}
 .fsearch{border:1px solid var(--border);background:var(--surface);padding:.2rem .55rem;font-size:.68rem;font-family:var(--f);color:var(--text-1);width:160px;outline:none;height:26px}
 .fsearch:focus{border-color:var(--accent)}
 .fcount{margin-left:auto;font-size:.69rem;color:var(--text-3);display:flex;align-items:center;gap:.6rem;flex-shrink:0}
@@ -99,10 +109,12 @@ footer{border-top:1px solid var(--border);padding:1.25rem 1.5rem;text-align:cent
     <div class="fg"><span class="fl">카테고리</span><div class="fchips" id="f-cat"></div></div>
     <div class="fg"><span class="fl">색상</span><div class="fchips" id="f-color"></div></div>
     <div class="fg"><span class="fl">마감</span><div class="fchips" id="f-finish"></div></div>
-    <div class="fg"><span class="fl">브랜드</span><select class="fsel" id="f-brand"></select></div>
-    <div class="fg"><span class="fl">규격</span><select class="fsel" id="f-size"></select></div>
+    <div class="fg"><button class="fexp" id="f-brand-btn" aria-expanded="false">브랜드<span class="fn" id="f-brand-n" hidden>0</span><span class="fx">+</span></button></div>
+    <div class="fg"><button class="fexp" id="f-size-btn" aria-expanded="false">규격<span class="fn" id="f-size-n" hidden>0</span><span class="fx">+</span></button></div>
     <input class="fsearch" id="f-search" type="search" placeholder="제품명·코드 검색">
     <div class="fcount"><span><b id="cnt">0</b>개</span><button class="freset" id="reset">필터 초기화</button></div>
+    <div class="fpanel" id="panel-brand" hidden></div>
+    <div class="fpanel" id="panel-size" hidden></div>
   </div>
 </div>
 
@@ -128,40 +140,74 @@ const sizeArea=s=>{const m=String(s).match(/(\d+)\s*[xX]\s*(\d+)/);return m?(+m[
 const catRank=c=>{const i=CAT_ORDER.indexOf(c);return i<0?999:i;};
 
 // state
-const state={cat:new Set(),color:new Set(),finish:new Set(),brand:"all",size:"all",q:""};
+const state={cat:new Set(),color:new Set(),finish:new Set(),brand:new Set(),size:new Set(),q:""};
 
 // build filter options
 const cats=uniq(TILES.map(t=>t.category).filter(Boolean)).sort((a,b)=>catRank(a)-catRank(b)||a.localeCompare(b,'ko'));
 const colors=uniq(TILES.map(t=>t.colorFamily).filter(Boolean)).sort((a,b)=>{const o=Object.keys(COLOR_HEX);return o.indexOf(a)-o.indexOf(b);});
 const finishes=uniq(TILES.map(t=>t.finish).filter(Boolean)).sort((a,b)=>a.localeCompare(b,'ko'));
-const brands=uniq(TILES.map(t=>t.brand).filter(Boolean)).sort((a,b)=>a.localeCompare(b,'ko'));
-const sizes=uniq(TILES.map(t=>t.size).filter(Boolean)).sort((a,b)=>sizeArea(b)-sizeArea(a));
+const maxEdge=s=>{const m=String(s).match(/(\d+)\D+(\d+)/);return m?Math.max(+m[1],+m[2]):0;};
+const countBy=k=>{const m={};TILES.forEach(t=>{const v=t[k];if(v)m[v]=(m[v]||0)+1;});return m;};
+const brandCnt=countBy('brand'), sizeCnt=countBy('size');
+const brands=uniq(TILES.map(t=>t.brand).filter(Boolean)).sort((a,b)=>brandCnt[b]-brandCnt[a]||a.localeCompare(b,'ko'));
+const sizes=uniq(TILES.map(t=>t.size).filter(Boolean));
+const SIZE_TIERS=[["대형 슬래브 (장변 1800mm↑)",s=>maxEdge(s)>=1800],["대형 (1000~1799mm)",s=>maxEdge(s)>=1000],["중형 (500~999mm)",s=>maxEdge(s)>=500],["소형·모자이크 (500mm 미만)",()=>true]];
 
-function chipBtn(container,group,val,label,dotHex){
+function chipBtn(container,group,val,label,dotHex,count){
   const b=document.createElement('button');
   b.className='fc';b.dataset.v=val;
   if(dotHex){const d=document.createElement('span');d.className='dot';d.style.background=dotHex;b.appendChild(d);}
   b.appendChild(document.createTextNode(label));
-  b.onclick=()=>{const s=state[group];s.has(val)?s.delete(val):s.add(val);b.classList.toggle('on');render();};
+  if(count!=null){const s=document.createElement('span');s.className='cn';s.textContent=count;b.appendChild(s);}
+  b.onclick=()=>{const s=state[group];s.has(val)?s.delete(val):s.add(val);b.classList.toggle('on');syncExp();render();};
   container.appendChild(b);
 }
 cats.forEach(c=>chipBtn(document.getElementById('f-cat'),'cat',c,c));
 colors.forEach(c=>chipBtn(document.getElementById('f-color'),'color',c,c,COLOR_HEX[c]||'#ccc'));
 finishes.forEach(f=>chipBtn(document.getElementById('f-finish'),'finish',f,f));
 
-function fillSelect(el,vals,allLabel){
-  el.innerHTML='<option value="all">'+allLabel+'</option>'+vals.map(v=>`<option value="${v}">${v}</option>`).join('');
+// brand panel — multi-select chips, most-common first
+const pBrand=document.getElementById('panel-brand');
+brands.forEach(b=>chipBtn(pBrand,'brand',b,b,null,brandCnt[b]));
+// size panel — grouped by size tier for browsability
+const pSize=document.getElementById('panel-size'); const usedS=new Set();
+SIZE_TIERS.forEach(([label,test])=>{
+  const grp=sizes.filter(s=>!usedS.has(s)&&test(s)).sort((a,b)=>sizeCnt[b]-sizeCnt[a]||maxEdge(b)-maxEdge(a));
+  if(!grp.length)return;
+  const h=document.createElement('div');h.className='fgh';h.textContent=label;pSize.appendChild(h);
+  grp.forEach(s=>{usedS.add(s);chipBtn(pSize,'size',s,s,null,sizeCnt[s]);});
+});
+
+// expand/collapse toggles (only one panel open at a time)
+function setupExp(btnId,panelId){
+  const btn=document.getElementById(btnId),panel=document.getElementById(panelId);
+  btn.onclick=e=>{e.stopPropagation();const willOpen=panel.hasAttribute('hidden');
+    document.querySelectorAll('.fpanel').forEach(p=>p.setAttribute('hidden',''));
+    document.querySelectorAll('.fexp').forEach(b=>b.classList.remove('open'));
+    if(willOpen){panel.removeAttribute('hidden');btn.classList.add('open');btn.setAttribute('aria-expanded','true');}
+    else btn.setAttribute('aria-expanded','false');
+  };
 }
-fillSelect(document.getElementById('f-brand'),brands,'전체 브랜드');
-fillSelect(document.getElementById('f-size'),sizes,'전체 규격');
-document.getElementById('f-brand').onchange=e=>{state.brand=e.target.value;render();};
-document.getElementById('f-size').onchange=e=>{state.size=e.target.value;render();};
+setupExp('f-brand-btn','panel-brand');
+setupExp('f-size-btn','panel-size');
+function syncExp(){
+  [['f-brand-btn','brand','f-brand-n'],['f-size-btn','size','f-size-n']].forEach(([bid,g,nid])=>{
+    const btn=document.getElementById(bid),n=document.getElementById(nid),c=state[g].size;
+    btn.classList.toggle('on',c>0); n.hidden=!c; n.textContent=c;
+  });
+}
+// click outside filter bar closes any open panel
+document.addEventListener('click',e=>{if(!e.target.closest('.fbar')){
+  document.querySelectorAll('.fpanel').forEach(p=>p.setAttribute('hidden',''));
+  document.querySelectorAll('.fexp').forEach(b=>{b.classList.remove('open');b.setAttribute('aria-expanded','false');});
+}});
+
 document.getElementById('f-search').oninput=e=>{state.q=e.target.value.trim().toLowerCase();render();};
 document.getElementById('reset').onclick=()=>{
-  state.cat.clear();state.color.clear();state.finish.clear();state.brand="all";state.size="all";state.q="";
+  state.cat.clear();state.color.clear();state.finish.clear();state.brand.clear();state.size.clear();state.q="";
   document.querySelectorAll('.fc.on').forEach(b=>b.classList.remove('on'));
-  document.getElementById('f-brand').value="all";document.getElementById('f-size').value="all";document.getElementById('f-search').value="";
-  render();
+  document.getElementById('f-search').value="";
+  syncExp();render();
 };
 
 // header counts
@@ -174,8 +220,8 @@ function match(t){
   if(state.cat.size&&!state.cat.has(t.category))return false;
   if(state.color.size&&!state.color.has(t.colorFamily))return false;
   if(state.finish.size&&!state.finish.has(t.finish))return false;
-  if(state.brand!=="all"&&t.brand!==state.brand)return false;
-  if(state.size!=="all"&&t.size!==state.size)return false;
+  if(state.brand.size&&!state.brand.has(t.brand))return false;
+  if(state.size.size&&!state.size.has(t.size))return false;
   if(state.q){const hay=((t.name||"")+" "+(t.code||"")+" "+(t.color||"")+" "+(t.brand||"")).toLowerCase();if(!hay.includes(state.q))return false;}
   return true;
 }
