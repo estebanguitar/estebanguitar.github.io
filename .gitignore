@@ -1,3 +1,9 @@
 # 원본 카탈로그 PDF (225MB) — GitHub 100MB 파일 제한 초과, 저장소에 커밋하지 않음
 카탈로그.pdf
 *.pdf
+
+# 이직 활동 로컬 산출물 — 공개 저장소이므로 절대 커밋하지 않는다
+01.대시보드.html
+*대시보드.html
+jobsearch.db
+_dash.json*
