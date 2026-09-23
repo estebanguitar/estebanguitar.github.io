@@ -43,7 +43,13 @@ text-transform:uppercase;letter-spacing:.06em}
 .job{font-size:13px;display:flex;gap:9px;align-items:baseline;flex-wrap:wrap}
 .job a{color:var(--acc);text-decoration:none}.job a:hover{text-decoration:underline}
 .pf{font-size:11px;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--mut)}
-.dl{color:#c4553a;font-size:12px}
+.dl{color:#c4553a;font-size:12px;white-space:nowrap}
+.dl.soon{font-weight:700}
+.dl.done{color:var(--mut);font-weight:400}
+.job.expired{opacity:.45}
+.job.expired a{color:var(--mut);text-decoration:line-through}
+.job.expired .pf{border-style:dashed}
+.allexp{font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid #c4553a;color:#c4553a;white-space:nowrap}
 .rnd{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line)}
 .rnd:first-of-type{border-top:0}
 .rh{font-size:12px;color:var(--mut);margin-bottom:5px;font-weight:600}
@@ -96,6 +102,10 @@ document.getElementById('q').oninput=e=>{q=e.target.value.trim();render();};
 // 카드 펼침은 이벤트 위임 — 인라인 onclick 은 module 스코프에서 안 잡힌다
 list.addEventListener('click',e=>{const h=e.target.closest('.hd');
  if(h&&!e.target.closest('a')) h.parentNode.classList.toggle('open');});
+const TODAY=new Date(); TODAY.setHours(0,0,0,0);
+// 공고 마감까지 남은 일수. 날짜가 없거나 상시채용이면 null
+function dday(x){ if(!x||!/^\d{4}-\d{2}-\d{2}$/.test(x)) return null;
+ const d=new Date(x+'T00:00:00'); return Math.round((d-TODAY)/86400000); }
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function hl(s){if(!q)return esc(s);
  return esc(s).replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>'<mark>'+m+'</mark>');}
@@ -108,18 +118,23 @@ function render(){
  for(const d of rows){
   if(d.g!==cur){cur=d.g;out+='<div class="sec">'+cur+'</div>';}
   const bm=d.p.some(p=>p.bm)?'<span class="bm" title="북마크">★</span>':'';
+  const allExp=d.p.length&&d.p.every(p=>{const n=dday(p.dl);return n!==null&&n<0;})
+    ?'<span class="allexp" title="등록된 공고가 모두 마감됨">공고 마감</span>':'';
   out+='<div class="card"><div class="hd">'
    +'<span class="tag G'+d.g+'">'+esc(d.v)+'</span>'
-   +'<span class="nm">'+hl(d.c)+' '+bm+'</span>'
+   +'<span class="nm">'+hl(d.c)+' '+bm+'</span>'+allExp
    +'<span class="meta">'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span></div><div class="body">';
   for(const a of d.a){
    out+='<div class="app"><span class="st">'+esc(a.st)+'</span> · '+esc(a.on)+' 지원'
     +(a.pf?' · '+esc(a.pf):'')+(a.t?'<br>'+esc(a.t):'')
     +(a.note?'<div class="why" style="margin-top:7px">'+hl(a.note)+'</div>':'')+'</div>';}
   if(d.p.length){out+='<div class="jobs">';
-   for(const p of d.p){out+='<div class="job"><span class="pf">'+esc(p.pf)+'</span>'
+   const ps=d.p.slice().sort((a,b)=>(dday(a.dl)===null?0:dday(a.dl)<0?1:0)-(dday(b.dl)===null?0:dday(b.dl)<0?1:0));
+   for(const p of ps){const n=dday(p.dl), ex=n!==null&&n<0;
+    out+='<div class="job'+(ex?' expired':'')+'"><span class="pf">'+esc(p.pf)+'</span>'
     +(p.u?'<a href="'+esc(p.u)+'" target="_blank" rel="noopener">'+esc(p.t||p.jid)+'</a>':esc(p.t||p.jid))
-    +(p.dl?'<span class="dl">마감 '+esc(p.dl)+'</span>':'')
+    +(p.dl?'<span class="dl'+(ex?' done':(n!==null&&n<=7?' soon':''))+'">'
+        +(ex?'마감됨 '+esc(p.dl):'마감 '+esc(p.dl)+(n!==null?' (D-'+n+')':''))+'</span>':'')
     +(p.bm?'<span class="bm">★북마크</span>':'')+'</div>';}
    out+='</div>';}
   for(const h of d.h.slice().reverse()){
