@@ -36,6 +36,10 @@ text-transform:uppercase;letter-spacing:.06em}
 .G진행중{color:var(--g0)}.G고민중{color:var(--g1)}.G지원권고{color:var(--g2)}
 .G조건부{color:var(--g3)}.G보류{color:var(--g4)}.G종료{color:var(--g5)}
 .meta{font-size:12px;color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
+.hh{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
+ margin-right:5px;color:#7c2d12;background:#fed7aa;border:1px solid #fb923c}
+.np{display:inline-block;font-size:10px;border-radius:3px;padding:1px 4px;margin-right:5px;
+ color:#6b7280;background:#f3f4f6;border:1px solid #d1d5db}
 .ax{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
  margin-right:5px;letter-spacing:-.2px;border:1px solid}
 .X4{color:#15803d;border-color:#15803d}.X3{color:#0369a1;border-color:#0369a1}
@@ -101,7 +105,7 @@ import { getDatabase, ref, get }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
 let D=[], C={}, q='';
-const ORD=["진행중", "고민중", "지원권고", "조건부", "보류", "종료"];
+const ORD=["진행중", "고민중", "지원권고", "조건부", "미검토", "보류", "종료"];
 let active=new Set(ORD.filter(g=>g!=='종료'));
 const bar=document.getElementById('bar'), list=document.getElementById('list');
 function chips(){
@@ -125,7 +129,9 @@ function hl(s){if(!q)return esc(s);
 function render(){
  let rows=D.filter(d=>active.has(d.g));
  if(q){const t=q.toLowerCase();
-  rows=rows.filter(d=>d.c.toLowerCase().includes(t)||(d.sm||'').toLowerCase().includes(t)||d.h.some(h=>(h.why||'').toLowerCase().includes(t)));}
+  rows=rows.filter(d=>d.c.toLowerCase().includes(t)||(d.sm||'').toLowerCase().includes(t)
+    ||(d.hh&&'헤드헌터헤드헌팅'.includes(t))||(d.np&&'공고없음'.includes(t))
+    ||d.h.some(h=>(h.why||'').toLowerCase().includes(t)));}
  document.getElementById('cnt').textContent='표시 '+rows.length+'곳';
  let out='',cur='';
  for(const d of rows){
@@ -137,6 +143,8 @@ function render(){
    +'<span class="tag G'+d.g+'">'+esc(d.v)+'</span>'
    +(d.ft!=null?'<span class="ft F'+(d.ft>=75?4:d.ft>=60?3:d.ft>=45?2:1)+'" title="직무적합도 '+d.ft
        +' — 스택 40% · 도메인 30% · 경력요건 20% · 공고 충실도 10%'+(d.fn?'&#10;'+esc(d.fn):'')+'">'+d.ft+'</span>':'')
+   +(d.hh?'<span class="hh" title="헤드헌터 경유 공고 — 실제 채용 회사가 공개되지 않는다">헤드헌터</span>':'')
+   +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
    +(d.ft!=null&&d.ax!=null?'<span class="ax X'+d.ax+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '
        +d.ax+'개 확인. 🔴 적합도 점수는 공고 정보만 보므로 평판·재무 위험은 담기지 않는다">'
        +(d.ax>=3?'✓':'⚠')+d.ax+'축</span>':'')
