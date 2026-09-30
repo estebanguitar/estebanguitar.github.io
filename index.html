@@ -47,6 +47,10 @@ text-transform:uppercase;letter-spacing:.06em}
 .ft{display:inline-block;min-width:22px;text-align:center;font-weight:700;font-size:11px;
  border-radius:3px;padding:1px 5px;margin-right:5px;color:#fff;letter-spacing:-.2px}
 .F4{background:#15803d}.F3{background:#0369a1}.F2{background:#a16207}.F1{background:#6b7280}
+.st2{display:inline-block;min-width:22px;text-align:center;font-weight:700;font-size:11px;
+ border-radius:3px;padding:0 4px;margin-right:5px;letter-spacing:-.2px;border:1.5px solid;background:#fff}
+.S4{color:#15803d;border-color:#15803d}.S3{color:#0369a1;border-color:#0369a1}
+.S2{color:#a16207;border-color:#d97706}.S1{color:#b91c1c;border-color:#dc2626;background:#fef2f2}
 .fn{flex-basis:100%;font-size:11px;color:var(--mut);margin-top:2px;opacity:.85}
 .card.open .fn{display:none}
 .pr{display:inline-block;min-width:17px;text-align:center;font-weight:700;font-size:11px;border-radius:3px;padding:1px 4px;margin-right:5px;color:#fff}.PS{background:#b91c1c}.PA{background:#c2410c}.PB{background:#0369a1}.PC{background:#6b7280}
@@ -131,7 +135,8 @@ function render(){
  if(q){const t=q.toLowerCase();
   rows=rows.filter(d=>d.c.toLowerCase().includes(t)||(d.sm||'').toLowerCase().includes(t)
     ||(d.hh&&'헤드헌터헤드헌팅'.includes(t))||(d.np&&'공고없음'.includes(t))
-    ||d.h.some(h=>(h.why||'').toLowerCase().includes(t)));}
+    ||(d.sd||'').toLowerCase().includes(t)
+  ||d.h.some(h=>(h.why||'').toLowerCase().includes(t)));}
  document.getElementById('cnt').textContent='표시 '+rows.length+'곳';
  let out='',cur='';
  for(const d of rows){
@@ -143,6 +148,9 @@ function render(){
    +'<span class="tag G'+d.g+'">'+esc(d.v)+'</span>'
    +(d.ft!=null?'<span class="ft F'+(d.ft>=75?4:d.ft>=60?3:d.ft>=45?2:1)+'" title="직무적합도 '+d.ft
        +' — 스택 40% · 도메인 30% · 경력요건 20% · 공고 충실도 10%'+(d.fn?'&#10;'+esc(d.fn):'')+'">'+d.ft+'</span>':'')
+   +(d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="기업안정성 '+d.st
+       +' — 재무 40% · 평판 30% · 인원 20% · 연봉 10%. 확인하지 못한 축은 50점 중립으로 넣는다'
+       +(d.sd?'&#10;'+esc(d.sd):'')+'">'+d.st+'</span>':'')
    +(d.hh?'<span class="hh" title="헤드헌터 경유 공고 — 실제 채용 회사가 공개되지 않는다">헤드헌터</span>':'')
    +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
    +(d.ft!=null&&d.ax!=null?'<span class="ax X'+d.ax+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '
@@ -152,7 +160,7 @@ function render(){
    +'<span class="nm">'+hl(d.c)+' '+bm+'</span>'+allExp
    +'<span class="meta">'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span>'
    +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')
-   +(d.fn?'<div class="fn">적합도 '+d.ft+' · '+esc(d.fn)+'</div>':'')+'</div><div class="body">';
+   +(d.fn?'<div class="fn">적합도 '+d.ft+(d.st!=null?' · 안정 '+d.st:'')+' · '+esc(d.fn)+'</div>':'')+'</div><div class="body">';
   for(const a of d.a){
    out+='<div class="app"><span class="st">'+esc(a.st)+'</span> · '+esc(a.on)+' 지원'
     +(a.pf?' · '+esc(a.pf):'')+(a.t?'<br>'+esc(a.t):'')
