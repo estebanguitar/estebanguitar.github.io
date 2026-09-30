@@ -36,6 +36,10 @@ text-transform:uppercase;letter-spacing:.06em}
 .G진행중{color:var(--g0)}.G고민중{color:var(--g1)}.G지원권고{color:var(--g2)}
 .G조건부{color:var(--g3)}.G보류{color:var(--g4)}.G종료{color:var(--g5)}
 .meta{font-size:12px;color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ax{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
+ margin-right:5px;letter-spacing:-.2px;border:1px solid}
+.X4{color:#15803d;border-color:#15803d}.X3{color:#0369a1;border-color:#0369a1}
+.X2{color:#6b7280;border-color:#9ca3af}.X1,.X0{color:#b45309;border-color:#f59e0b;background:#fffbeb}
 .ft{display:inline-block;min-width:22px;text-align:center;font-weight:700;font-size:11px;
  border-radius:3px;padding:1px 5px;margin-right:5px;color:#fff;letter-spacing:-.2px}
 .F4{background:#15803d}.F3{background:#0369a1}.F2{background:#a16207}.F1{background:#6b7280}
@@ -133,6 +137,9 @@ function render(){
    +'<span class="tag G'+d.g+'">'+esc(d.v)+'</span>'
    +(d.ft!=null?'<span class="ft F'+(d.ft>=75?4:d.ft>=60?3:d.ft>=45?2:1)+'" title="직무적합도 '+d.ft
        +' — 스택 40% · 도메인 30% · 경력요건 20% · 공고 충실도 10%'+(d.fn?'&#10;'+esc(d.fn):'')+'">'+d.ft+'</span>':'')
+   +(d.ft!=null&&d.ax!=null?'<span class="ax X'+d.ax+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '
+       +d.ax+'개 확인. 🔴 적합도 점수는 공고 정보만 보므로 평판·재무 위험은 담기지 않는다">'
+       +(d.ax>=3?'✓':'⚠')+d.ax+'축</span>':'')
    +(d.pr?'<span class="pr P'+d.pr+'" title="우선순위 등급">'+d.pr+'</span>':'')
    +'<span class="nm">'+hl(d.c)+' '+bm+'</span>'+allExp
    +'<span class="meta">'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span>'
