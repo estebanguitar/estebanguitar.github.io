@@ -64,7 +64,6 @@ text-transform:uppercase;letter-spacing:.06em}
 .pv{font-size:11px;border-radius:9px;padding:1px 7px;margin-right:5px;color:#fff;white-space:nowrap}
 .pv.v0{background:#2e7d32}.pv.v1{background:#ef6c00}.pv.v2{background:#616161}.pv.v3{background:#c62828}
 .rc{font-size:10px;color:var(--mut);margin-left:4px}
-.vc{font-size:10px;color:var(--mut);border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:4px}
 .jd{font-size:11px;color:var(--mut);line-height:1.5;margin-top:4px;padding-left:2px;border-left:2px solid var(--line);padding-left:8px}
 .dl{color:#c4553a;font-size:12px;white-space:nowrap}
 .dl.soon{font-weight:700}
@@ -157,7 +156,6 @@ function render(){
     ?'<span class="allexp" title="등록된 공고가 모두 마감됨">공고 마감</span>':'';
   out+='<div class="card"><div class="hd">'
    +'<span class="tag G'+d.g+'">'+esc(d.v)+'</span>'
-   +(d.vc?'<span class="vc" title="회사 수준 판정 — 공고별 판정과 다르다">회사: '+esc(d.vc)+'</span>':'')
    +(d.ft!=null?'<span class="ft F'+(d.ft>=75?4:d.ft>=60?3:d.ft>=45?2:1)+'" title="직무적합도 '+d.ft
        +' — 스택 40% · 도메인 30% · 경력요건 20% · 공고 충실도 10%'+(d.fn?'&#10;'+esc(d.fn):'')+'">'+d.ft+'</span>':'')
    +(d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="기업안정성 '+d.st
