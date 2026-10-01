@@ -61,6 +61,10 @@ text-transform:uppercase;letter-spacing:.06em}
 .job{font-size:13px;display:flex;gap:9px;align-items:baseline;flex-wrap:wrap}
 .job a{color:var(--acc);text-decoration:none}.job a:hover{text-decoration:underline}
 .pf{font-size:11px;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--mut)}
+.pv{font-size:11px;border-radius:9px;padding:1px 7px;margin-right:5px;color:#fff;white-space:nowrap}
+.pv.v0{background:#2e7d32}.pv.v1{background:#ef6c00}.pv.v2{background:#616161}.pv.v3{background:#c62828}
+.rc{font-size:10px;color:var(--mut);margin-left:4px}
+.jd{font-size:11px;color:var(--mut);line-height:1.5;margin-top:4px;padding-left:2px;border-left:2px solid var(--line);padding-left:8px}
 .dl{color:#c4553a;font-size:12px;white-space:nowrap}
 .dl.soon{font-weight:700}
 .dl.done{color:var(--mut);font-weight:400}
@@ -116,8 +120,14 @@ function chips(){
  bar.querySelectorAll('.chip').forEach(n=>n.remove());
  ORD.forEach(g=>{const b=document.createElement('button');b.className='chip';
   b.setAttribute('aria-pressed',active.has(g));b.innerHTML=g+'<b>'+(C[g]||0)+'</b>';
-  b.onclick=()=>{active.has(g)?active.delete(g):active.add(g);
-   b.setAttribute('aria-pressed',active.has(g));render();};
+  b.onclick=async()=>{active.has(g)?active.delete(g):active.add(g);
+   b.setAttribute('aria-pressed',active.has(g));
+   // 🔴 종료는 첫 로드에서 빠져 있다. 처음 켤 때만 내려받아 덧붙인다
+   if(g==='종료'&&active.has(g)&&typeof loadDead==='function'&&!window.__deadOn){
+     window.__deadOn=1; b.disabled=true; const o=b.innerHTML; b.innerHTML='종료<b>…</b>';
+     try{ await loadDead(); }catch(e){ window.__deadOn=0; }
+     b.disabled=false; b.innerHTML=o;}
+   render();};
   bar.insertBefore(b,document.getElementById('q'));});}
 document.getElementById('q').oninput=e=>{q=e.target.value.trim();render();};
 // 카드 펼침은 이벤트 위임 — 인라인 onclick 은 module 스코프에서 안 잡힌다
@@ -165,14 +175,18 @@ function render(){
    out+='<div class="app"><span class="st">'+esc(a.st)+'</span> · '+esc(a.on)+' 지원'
     +(a.pf?' · '+esc(a.pf):'')+(a.t?'<br>'+esc(a.t):'')
     +(a.note?'<div class="why" style="margin-top:7px">'+hl(a.note)+'</div>':'')+'</div>';}
+  const PVC={'지원권고':'v0','조건부':'v1','보류':'v2','제외':'v3'};
+  const pvb=p=>p.pv?('<span class="pv '+(PVC[p.pv]||'v2')+'">'+esc(p.pv)+'</span>'
+    +(p.rc?'<span class="rc">'+esc(p.rc.replace(/,/g,' · '))+'</span>':'')):'';
   if(d.p.length){out+='<div class="jobs">';
    const ps=d.p.slice().sort((a,b)=>(dday(a.dl)===null?0:dday(a.dl)<0?1:0)-(dday(b.dl)===null?0:dday(b.dl)<0?1:0));
    for(const p of ps){const n=dday(p.dl), ex=n!==null&&n<0;
-    out+='<div class="job'+(ex?' expired':'')+'"><span class="pf">'+esc(p.pf)+'</span>'
+    out+='<div class="job'+(ex?' expired':'')+'">'+pvb(p)+'<span class="pf">'+esc(p.pf)+'</span>'
     +(p.u?'<a href="'+esc(p.u)+'" target="_blank" rel="noopener">'+esc(p.t||p.jid)+'</a>':esc(p.t||p.jid))
     +(p.dl?'<span class="dl'+(ex?' done':(n!==null&&n<=7?' soon':''))+'">'
         +(ex?'마감됨 '+esc(p.dl):'마감 '+esc(p.dl)+(n!==null?' (D-'+n+')':''))+'</span>':'')
-    +(p.bm?'<span class="bm">★북마크</span>':'')+'</div>';}
+    +(p.bm?'<span class="bm">★북마크</span>':'')
+    +(p.jd?'<div class="jd">'+esc(p.jd)+'</div>':'')+'</div>';}
    out+='</div>';}
   for(const h of d.h.slice().reverse()){
    out+='<div class="rnd"><div class="rh">'+(h.r?h.r+'차 · ':'')+esc(h.d)+' · '+esc(h.v)+'</div>'
@@ -193,8 +207,8 @@ const gate=document.getElementById('gate'), appEl=document.getElementById('app')
 document.getElementById('gbtn').onclick=()=>
   signInWithPopup(auth,new GoogleAuthProvider()).catch(e=>gmsg.textContent='로그인 실패: '+e.code);
 document.getElementById('out').onclick=()=>signOut(auth);
-async function pull(){
-  const snap=await get(ref(db,'jobdash/blob'));
+async function pull(path){
+  const snap=await get(ref(db,path));
   if(!snap.exists()) throw new Error('데이터 없음 — 로컬에서 jobdash-push 를 먼저 실행하세요');
   const b64=snap.val();
   const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
@@ -202,11 +216,18 @@ async function pull(){
               .pipeThrough(new DecompressionStream('gzip'))).text();
   return JSON.parse(txt);
 }
+// 🔴 첫 로드는 종료를 뺀 생존분만 받는다. 종료 칩을 처음 켤 때 전체를 받아 덧붙인다.
+window.loadDead=async function(){
+  const full=await pull('jobdash/blob');
+  const dead=(full.data||[]).filter(d=>d.g==='종료');
+  const have=new Set(D.map(d=>d.c));
+  D=D.concat(dead.filter(d=>!have.has(d.c)));
+};
 onAuthStateChanged(auth, async u=>{
   if(!u){ gate.hidden=false; appEl.hidden=true; return; }
   gate.hidden=true; appEl.hidden=false;
   const s=document.getElementById('src'); s.className='off'; s.textContent='불러오는 중…';
-  try{ load(await pull(),'원격 · '+u.email,'on'); }
+  try{ load(await pull('jobdash/blob_live'),'원격 · '+u.email,'on'); }
   catch(e){ s.className='err';
     s.textContent=(e.code==='PERMISSION_DENIED'||/permission/i.test(e.message))
       ?'권한 없음 — 이 계정은 허용 목록에 없습니다':'불러오기 실패: '+e.message; }
