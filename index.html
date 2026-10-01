@@ -141,7 +141,9 @@ const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"
 function hl(s){if(!q)return esc(s);
  return esc(s).replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>'<mark>'+m+'</mark>');}
 function render(){
- let rows=D.filter(d=>active.has(d.g));
+ // 🔴 등록된 공고가 없는 회사는 지원할 길이 없다. 화면에서 뺀다.
+ //    검색어를 넣으면 다시 보여 과거 판정을 찾을 수 있게 둔다.
+ let rows=D.filter(d=>active.has(d.g)&&(q||!d.np));
  if(q){const t=q.toLowerCase();
   rows=rows.filter(d=>d.c.toLowerCase().includes(t)||(d.sm||'').toLowerCase().includes(t)
     ||(d.hh&&'헤드헌터헤드헌팅'.includes(t))||(d.np&&'공고없음'.includes(t))
