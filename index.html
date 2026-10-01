@@ -64,6 +64,7 @@ text-transform:uppercase;letter-spacing:.06em}
 .pv{font-size:11px;border-radius:9px;padding:1px 7px;margin-right:5px;color:#fff;white-space:nowrap}
 .pv.v0{background:#2e7d32}.pv.v1{background:#ef6c00}.pv.v2{background:#616161}.pv.v3{background:#c62828}
 .rc{font-size:10px;color:var(--mut);margin-left:4px}
+#sort{margin-left:8px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font-size:13px;font-family:inherit}
 .jd{font-size:11px;color:var(--mut);line-height:1.5;margin-top:4px;padding-left:2px;border-left:2px solid var(--line);padding-left:8px}
 .dl{color:#c4553a;font-size:12px;white-space:nowrap}
 .dl.soon{font-weight:700}
@@ -102,7 +103,7 @@ font-size:14px;cursor:pointer}
 <h1>대시보드</h1>
 <div class="sub"><span id="gen">-</span> 기준 · 판정 <span id="tot">-</span>건 ·
 <span id="cnt"></span> · <span id="src" class="off">확인 중…</span> · <button id="out">로그아웃</button></div>
-<div class="bar" id="bar"><input id="q" placeholder="회사명·판정근거 검색"></div>
+<div class="bar" id="bar"><input id="q" placeholder="회사명·판정근거 검색"><select id="sort" title="정렬 기준"><option value="base">기본(그룹·적합도)</option><option value="fit">직무적합도 높은 순</option><option value="stab">기업안정성 높은 순</option><option value="dl">마감 임박 순</option><option value="ax">실사 충실도 높은 순</option><option value="name">가나다 순</option></select></div>
 <div id="list"></div></div>
 <button class="top" onclick="scrollTo({top:0,behavior:'smooth'})">↑ 위로</button>
 <script type="module">
@@ -112,7 +113,16 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signO
 import { getDatabase, ref, get }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-let D=[], C={}, q='';
+let D=[], C={}, q='', sortBy='base';
+// 🔴 정렬 기준. 기본은 서버가 매긴 순서(그룹 → 공고유무 → 적합도 → 마감)를 그대로 쓴다.
+const NUM=v=>(v===null||v===undefined||v==='')?-1:Number(v);
+const SORTS={
+ base:null,
+ fit:(a,b)=>NUM(b.ft)-NUM(a.ft)||a.c.localeCompare(b.c,'ko'),
+ stab:(a,b)=>NUM(b.st)-NUM(a.st)||a.c.localeCompare(b.c,'ko'),
+ dl:(a,b)=>(a.ndl||'9999-99-99').localeCompare(b.ndl||'9999-99-99')||a.c.localeCompare(b.c,'ko'),
+ ax:(a,b)=>NUM(b.ax)-NUM(a.ax)||NUM(b.ft)-NUM(a.ft)||a.c.localeCompare(b.c,'ko'),
+ name:(a,b)=>a.c.localeCompare(b.c,'ko')};
 const ORD=["진행중", "고민중", "지원권고", "조건부", "미검토", "보류", "종료"];
 let active=new Set(ORD.filter(g=>g!=='종료'));
 const bar=document.getElementById('bar'), list=document.getElementById('list');
@@ -130,6 +140,7 @@ function chips(){
    render();};
   bar.insertBefore(b,document.getElementById('q'));});}
 document.getElementById('q').oninput=e=>{q=e.target.value.trim();render();};
+document.getElementById('sort').onchange=e=>{sortBy=e.target.value;render();};
 // 카드 펼침은 이벤트 위임 — 인라인 onclick 은 module 스코프에서 안 잡힌다
 list.addEventListener('click',e=>{const h=e.target.closest('.hd');
  if(h&&!e.target.closest('a')) h.parentNode.classList.toggle('open');});
@@ -147,10 +158,14 @@ function render(){
     ||(d.hh&&'헤드헌터헤드헌팅'.includes(t))||(d.np&&'공고없음'.includes(t))
     ||(d.sd||'').toLowerCase().includes(t)
   ||d.h.some(h=>(h.why||'').toLowerCase().includes(t)));}
+ const cmp=SORTS[sortBy];
+ if(cmp) rows=rows.slice().sort(cmp);
  document.getElementById('cnt').textContent='표시 '+rows.length+'곳';
  let out='',cur='';
  for(const d of rows){
-  if(d.g!==cur){cur=d.g;out+='<div class="sec">'+cur+'</div>';}
+  // 🔴 그룹 머리글은 기본 정렬일 때만 쓴다. 다른 기준으로 정렬하면 그룹이 섞여 머리글이 반복된다.
+  //    판정은 카드의 tag 배지에 그대로 보이므로 정보가 사라지지 않는다.
+  if(sortBy==='base'&&d.g!==cur){cur=d.g;out+='<div class="sec">'+cur+'</div>';}
   const bm=d.p.some(p=>p.bm)?'<span class="bm" title="북마크">★</span>':'';
   const allExp=d.p.length&&d.p.every(p=>{const n=dday(p.dl);return n!==null&&n<0;})
     ?'<span class="allexp" title="등록된 공고가 모두 마감됨">공고 마감</span>':'';
