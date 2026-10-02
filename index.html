@@ -123,7 +123,8 @@ import { getDatabase, ref, get }
 
 let D=[], C={}, q='';
 const ORD=["진행중", "고민중", "지원권고", "조건부", "미검토", "보류", "종료"];
-let active=new Set(ORD.filter(g=>g!=='종료'));
+// 🔴 「진행중」 은 이미 지원해 추적만 하는 칸이다. 처음에는 끄고 필요할 때 켠다.
+let active=new Set(ORD.filter(g=>g!=='종료'&&g!=='진행중'));
 const bar=document.getElementById('bar'), list=document.getElementById('list');
 function chips(){
  bar.querySelectorAll('.chip').forEach(n=>n.remove());
