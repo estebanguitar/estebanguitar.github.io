@@ -178,7 +178,6 @@ function render(){
    +(d.ft!=null&&d.ax!=null?'<span class="ax X'+d.ax+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '
        +d.ax+'개 확인. 🔴 적합도 점수는 공고 정보만 보므로 평판·재무 위험은 담기지 않는다">'
        +(d.ax>=3?'✓':'⚠')+d.ax+'축</span>':'')
-   +(d.pr?'<span class="pr P'+d.pr+'" title="우선순위 등급">'+d.pr+'</span>':'')
    +'<span class="nm">'+hl(d.c)+' '+bm+'</span>'+allExp
    +'<span class="meta">'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span>'
    +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')
