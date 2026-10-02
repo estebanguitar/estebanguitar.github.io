@@ -63,6 +63,13 @@ text-transform:uppercase;letter-spacing:.06em}
 .pf{font-size:11px;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--mut)}
 .pv{font-size:11px;border-radius:9px;padding:1px 7px;margin-right:5px;color:#fff;white-space:nowrap}
 .pv.v0{background:#2e7d32}.pv.v1{background:#ef6c00}.pv.v2{background:#616161}.pv.v3{background:#c62828}
+.more{margin-top:6px}
+.more>summary{cursor:pointer;font-size:12px;color:var(--mut);padding:4px 0;list-style:none;user-select:none}
+.more>summary::before{content:'▸ ';}
+.more[open]>summary::before{content:'▾ ';}
+.more>summary:hover{color:var(--fg)}
+.more.inline{display:inline}
+.more.inline>summary{display:inline;font-size:12px}
 .ws{font-size:10px;border-radius:4px;padding:1px 6px;margin-left:5px;border:1px solid var(--line);color:var(--mut)}
 .ws.w2{border-color:#8a6d3b;color:#8a6d3b}.ws.w3{border-color:#999;color:#999}
 .rc{font-size:10px;color:var(--mut);margin-left:4px}
@@ -193,10 +200,28 @@ function render(){
     +(p.bm?'<span class="bm">★북마크</span>':'')
     +(p.jd?'<div class="jd">'+esc(p.jd)+'</div>':'')+'</div>';}
    out+='</div>';}
-  for(const h of d.h.slice().reverse()){
-   out+='<div class="rnd"><div class="rh">'+(h.r?h.r+'차 · ':'')+esc(h.d)+' · '+esc(h.v)+'</div>'
-    +'<div class="why">'+hl(h.why)+'</div>'
-    +(h.doc?'<div class="doc">'+esc(h.doc)+'</div>':'')+'</div>';}
+  // 🔴 이력이 카드당 평균 4.9건·2,111자라 스크롤이 길었다. 최신 1건만 펼치고 나머지는 접는다.
+  //    검색 중에는 찾는 말이 옛 이력에 있을 수 있으므로 모두 펼친다.
+  const hs=d.h.slice().reverse();
+  // 🔴 최신 이력 한 건도 평균 503자다. 600자에서 자르고 나머지는 펼쳐 보게 한다.
+  const CUT=600;
+  const body=w=>{
+   if(q||!w||w.length<=CUT) return '<div class="why">'+hl(w)+'</div>';
+   let i=w.lastIndexOf('. ',CUT); if(i<CUT*0.5) i=w.lastIndexOf('다 ',CUT);
+   const head=w.slice(0,i>CUT*0.5?i+1:CUT);
+   return '<div class="why">'+hl(head)+'<details class="more inline"><summary>더보기</summary>'
+     +hl(w.slice(head.length))+'</details></div>';};
+  const one=h=>'<div class="rnd"><div class="rh">'+(h.r?h.r+'차 · ':'')+esc(h.d)+' · '+esc(h.v)+'</div>'
+    +body(h.why)
+    +(h.doc?'<div class="doc">'+esc(h.doc)+'</div>':'')+'</div>';
+  if(q||hs.length<=1){ for(const h of hs) out+=one(h); }
+  else{
+   out+=one(hs[0]);
+   if(hs.length>1){
+    out+='<details class="more"><summary>이전 실사 '+(hs.length-1)+'건 보기</summary>';
+    for(const h of hs.slice(1)) out+=one(h);
+    out+='</details>';}
+  }
   out+='</div></div>';}
  list.innerHTML=out||'<div class="none">해당하는 회사가 없습니다.</div>';}
 function load(j,label,cls){
