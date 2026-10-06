@@ -38,8 +38,20 @@ text-transform:uppercase;letter-spacing:.06em}
 .meta{font-size:12px;color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
 .hh{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
  margin-right:5px;color:#7c2d12;background:#fed7aa;border:1px solid #fb923c}
+.rq{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
+ margin-right:5px;color:#1e3a8a;background:#dbeafe;border:1px solid #60a5fa}
+.rqb{border-left:3px solid #60a5fa;padding:9px 12px;border-radius:0 6px 6px 0;margin:12px 0;font-size:13px;
+ background:color-mix(in oklab,#60a5fa 10%,transparent)}
+.rqb .rs{font-weight:700;margin-top:6px}.rqb .rs:first-child{margin-top:0}
+.rqb div{overflow-wrap:anywhere}
 .np{display:inline-block;font-size:10px;border-radius:3px;padding:1px 4px;margin-right:5px;
  color:#6b7280;background:#f3f4f6;border:1px solid #d1d5db}
+.gr{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;margin-right:3px;border:1px solid}
+.g0{color:#0a6b2e;background:#e7f7ec;border-color:#9ad8b0}
+.g1{color:#1a5fb4;background:#e8f0fb;border-color:#a9c7ee}
+.g2{color:#7a5a00;background:#fdf4d9;border-color:#e3cb7a}
+.g3{color:#a33;background:#fdeaea;border-color:#eeb0b0}
+.g4{color:#666;background:#f1f1f1;border-color:#d4d4d4}
 .ax{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
  margin-right:5px;letter-spacing:-.2px;border:1px solid}
 .X4{color:#15803d;border-color:#15803d}.X3{color:#0369a1;border-color:#0369a1}
@@ -125,10 +137,13 @@ let D=[], C={}, q='';
 const ORD=["진행중", "고민중", "지원권고", "조건부", "미검토", "보류", "종료"];
 // 🔴 「진행중」 은 이미 지원해 추적만 하는 칸이다. 처음에는 끄고 필요할 때 켠다.
 let active=new Set(ORD.filter(g=>g!=='종료'&&g!=='진행중'));
+// 평판 확인 칩을 켜면 판정 칩과 무관하게 확인할 회사만 보인다
+let repOnly=false;
 const bar=document.getElementById('bar'), list=document.getElementById('list');
 function chips(){
  bar.querySelectorAll('.chip').forEach(n=>n.remove());
- ORD.forEach(g=>{const b=document.createElement('button');b.className='chip';
+ // 종료 칩은 사용자 요청으로 화면에서 뺐다
+ ORD.filter(g=>g!=='종료').forEach(g=>{const b=document.createElement('button');b.className='chip';
   b.setAttribute('aria-pressed',active.has(g));b.innerHTML=g+'<b>'+(C[g]||0)+'</b>';
   b.onclick=async()=>{active.has(g)?active.delete(g):active.add(g);
    b.setAttribute('aria-pressed',active.has(g));
@@ -138,7 +153,13 @@ function chips(){
      try{ await loadDead(); }catch(e){ window.__deadOn=0; }
      b.disabled=false; b.innerHTML=o;}
    render();};
-  bar.insertBefore(b,document.getElementById('q'));});}
+  bar.insertBefore(b,document.getElementById('q'));});
+ const nr=D.filter(d=>d.ru).length;
+ if(!nr) repOnly=false;
+ if(nr){const b=document.createElement('button');b.className='chip';b.id='repchip';
+  b.setAttribute('aria-pressed',repOnly);b.innerHTML='평판 확인<b>'+nr+'</b>';
+  b.onclick=()=>{repOnly=!repOnly;b.setAttribute('aria-pressed',repOnly);render();};
+  bar.insertBefore(b,document.getElementById('q'));}}
 document.getElementById('q').oninput=e=>{q=e.target.value.trim();render();};
 // 카드 펼침은 이벤트 위임 — 인라인 onclick 은 module 스코프에서 안 잡힌다
 list.addEventListener('click',e=>{const h=e.target.closest('.hd');
@@ -150,10 +171,20 @@ function dday(x){ if(!x||!/^\d{4}-\d{2}-\d{2}$/.test(x)) return null;
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function hl(s){if(!q)return esc(s);
  return esc(s).replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>'<mark>'+m+'</mark>');}
+// 확인 등급 — 그 회사 축 값 중 가장 낮은 등급을 보여준다
+const GRC={'확인됨(공시)':'g0','확인됨':'g1','참고값':'g2','단일출처':'g2','하한만':'g3','불일치':'g3','추정':'g3','리뷰없음':'g4'};
+const GRT={'확인됨(공시)':'DART 전자공시 값이다. 회사가 직접 신고했다',
+  '확인됨':'출처 2개 이상이 1.2배 안에서 일치한다',
+  '참고값':'이 회사에 DART 공시 값이 따로 있다. 그쪽이 정본이다',
+  '단일출처':'출처가 하나뿐이라 대조하지 못했다',
+  '하한만':'국민연금 기준소득월액 상한에 닿아 절사된 값이다. 실제는 이보다 높다',
+  '불일치':'출처끼리 1.5배 넘게 어긋난다. 숫자 하나를 근거로 쓰지 않는다',
+  '추정':'출처가 추정값이라고 밝혔다',
+  '리뷰없음':'조사했으나 등록된 리뷰가 0건이다. 나쁜 평판이 아니다'};
 function render(){
  // 🔴 등록된 공고가 없는 회사는 지원할 길이 없다. 화면에서 뺀다.
  //    검색어를 넣으면 다시 보여 과거 판정을 찾을 수 있게 둔다.
- let rows=D.filter(d=>active.has(d.g)&&(q||!d.np));
+ let rows=repOnly?D.filter(d=>d.ru):D.filter(d=>active.has(d.g)&&(q||!d.np));
  if(q){const t=q.toLowerCase();
   rows=rows.filter(d=>d.c.toLowerCase().includes(t)||(d.sm||'').toLowerCase().includes(t)
     ||(d.hh&&'헤드헌터헤드헌팅'.includes(t))||(d.np&&'공고없음'.includes(t))
@@ -174,8 +205,10 @@ function render(){
    +(d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="기업안정성 '+d.st
        +' — 재무 40% · 평판 30% · 인원 20% · 연봉 10%. 확인하지 못한 축은 50점 중립으로 넣는다'
        +(d.sd?'&#10;'+esc(d.sd):'')+'">'+d.st+'</span>':'')
+   +(d.ru?'<span class="rq" title="리뷰 평점이 이 회사 것인지 확인하지 못했다">평판 확인</span>':'')
    +(d.hh?'<span class="hh" title="헤드헌터 경유 공고 — 실제 채용 회사가 공개되지 않는다">헤드헌터</span>':'')
    +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
+   +(d.gr?'<span class="gr '+(GRC[d.gr]||'g2')+'" title="'+esc(GRT[d.gr]||'')+'">'+esc(d.gr)+'</span>':'')
    +(d.ft!=null&&d.ax!=null?'<span class="ax X'+d.ax+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '
        +d.ax+'개 확인. 🔴 적합도 점수는 공고 정보만 보므로 평판·재무 위험은 담기지 않는다">'
        +(d.ax>=3?'✓':'⚠')+d.ax+'축</span>':'')
@@ -187,6 +220,13 @@ function render(){
    out+='<div class="app"><span class="st">'+esc(a.st)+'</span> · '+esc(a.on)+' 지원'
     +(a.pf?' · '+esc(a.pf):'')+(a.t?'<br>'+esc(a.t):'')
     +(a.note?'<div class="why" style="margin-top:7px">'+hl(a.note)+'</div>':'')+'</div>';}
+  if(d.ru){out+='<div class="rqb">';
+   for(const x of d.ru){const parts=x.r.split(' | ');
+    out+='<div class="rs">'+esc(x.s)+' 평점 — 같은 회사인지 확인</div>';
+    const nm=d.c.replace(/\(주\)|㈜|주식회사|\(유\)|유한회사/g,'').replace(/\(.*?\)/g,'').trim();
+    out+='<div><a href="'+(x.s==='블라인드'?'https://www.teamblind.com/kr/company/'+encodeURIComponent(nm)+'/reviews':'https://www.jobplanet.co.kr/search?query='+encodeURIComponent(nm))+'" target="_blank" rel="noopener">'+esc(x.s)+'에서 열기</a></div>';
+    for(const t of parts){out+='<div>'+esc(t).replace(/https?:\/\/[^\s<]+/g,u=>'<a href="'+u+'" target="_blank" rel="noopener">'+u+'</a>')+'</div>';}}
+   out+='</div>';}
   const PVC={'지원권고':'v0','조건부':'v1','보류':'v2','제외':'v3'};
   const pvb=p=>p.pv?('<span class="pv '+(PVC[p.pv]||'v2')+'">'+esc(p.pv)+'</span>'
     +(p.rc?'<span class="rc">'+esc(p.rc.replace(/,/g,' · '))+'</span>':'')):'';
