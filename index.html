@@ -31,7 +31,10 @@ text-transform:uppercase;letter-spacing:.06em}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:7px;overflow:hidden}
 .hd{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;flex-wrap:wrap}
 .hd:hover{background:color-mix(in oklab,var(--card) 88%,var(--fg))}
-.nm{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm{font-weight:700;font-size:15px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:0 10px;font-size:11px;color:var(--mut);margin-top:-4px}
+.sub .tag{font-size:10px;padding:0 5px}
+.sub .axw{color:var(--g1)}
 .tag{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
 .G진행중{color:var(--g0)}.G고민중{color:var(--g1)}.G지원권고{color:var(--g2)}
 .G조건부{color:var(--g3)}.G보류{color:var(--g4)}.G종료{color:var(--g5)}
@@ -207,26 +210,25 @@ function render(){
   const bm=d.p.some(p=>p.bm)?'<span class="bm" title="북마크">★</span>':'';
   const allExp=d.p.length&&d.p.every(p=>{const n=dday(p.dl);return n!==null&&n<0;})
     ?'<span class="allexp" title="등록된 공고가 모두 마감됨">공고 마감</span>':'';
+  const ftT='직무적합도 '+d.ft+' — 스택 40% · 도메인 30% · 경력요건 20% · 공고 충실도 10%'+(d.fn?'&#10;'+esc(d.fn):'');
+  const stT='기업안정성 '+d.st+' — 재무 40% · 평판 30% · 인원 20% · 연봉 10%. 확인하지 못한 축은 50점 중립으로 넣는다'+(d.sd?'&#10;'+esc(d.sd):'');
+  // 첫 줄: 회사명과 경고 표시, 오른쪽 끝에 대표 점수 하나
   out+='<div class="card"><div class="hd">'
-   +'<span class="tag G'+d.g+'">'+esc(d.v)+'</span>'
+   +'<span class="nm">'+hl(d.c)+' '+bm+'</span>'+allExp
    +(d.ws&&d.ws!=='완료'?'<span class="ws '+({'조사대기':'w2','마감':'w3'}[d.ws]||'')+'" title="작업 상태 — 조사대기는 축을 채우면 등급이 올라갈 수 있다">'+esc(d.ws)+'</span>':'')
-   +(d.ft!=null?'<span class="ft F'+(d.ft>=75?4:d.ft>=60?3:d.ft>=45?2:1)+'" title="직무적합도 '+d.ft
-       +' — 스택 40% · 도메인 30% · 경력요건 20% · 공고 충실도 10%'+(d.fn?'&#10;'+esc(d.fn):'')+'">'+d.ft+'</span>':'')
-   +(d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="기업안정성 '+d.st
-       +' — 재무 40% · 평판 30% · 인원 20% · 연봉 10%. 확인하지 못한 축은 50점 중립으로 넣는다'
-       +(d.sd?'&#10;'+esc(d.sd):'')+'">'+d.st+'</span>':'')
-   +(d.rn?'<span class="rk" title="추천 점수 — '+esc(d.rb||'')+'">추천 '+d.rn+'위 · '+d.rk+'</span>':'')
    +(d.ru?'<span class="rq" title="리뷰 평점이 이 회사 것인지 확인하지 못했다">평판 확인</span>':'')
    +(d.hh?'<span class="hh" title="헤드헌터 경유 공고 — 실제 채용 회사가 공개되지 않는다">헤드헌터</span>':'')
    +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
-   +(d.gr?'<span class="gr '+(GRC[d.gr]||'g2')+'" title="'+esc(GRT[d.gr]||'')+'">'+esc(d.gr)+'</span>':'')
-   +(d.ft!=null&&d.ax!=null?'<span class="ax X'+d.ax+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '
-       +d.ax+'개 확인. 🔴 적합도 점수는 공고 정보만 보므로 평판·재무 위험은 담기지 않는다">'
-       +(d.ax>=3?'✓':'⚠')+d.ax+'축</span>':'')
-   +'<span class="nm">'+hl(d.c)+' '+bm+'</span>'+allExp
-   +'<span class="meta">'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span>'
-   +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')
-   +(d.fn?'<div class="fn">적합도 '+d.ft+(d.st!=null?' · 안정 '+d.st:'')+' · '+esc(d.fn)+'</div>':'')+'</div><div class="body">';
+   +(d.rn?'<span class="rk" title="추천 점수 — '+esc(d.rb||'')+'">추천 '+d.rn+'위 · '+d.rk+'</span>'
+     :d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="'+stT+'">안정 '+d.st+'</span>':'')
+   // 둘째 줄: 라벨과 세부 점수를 작은 회색 글씨로 모은다
+   +'<div class="sub"><span class="tag G'+d.g+'">'+esc(d.v)+'</span>'
+   +(d.ft!=null?'<span title="'+ftT+'">적합 '+d.ft+'</span>':'')
+   +(d.st!=null?'<span title="'+stT+'">안정 '+d.st+'</span>':'')
+   +(d.ft!=null&&d.ax!=null?'<span class="'+(d.ax>=3?'':'axw')+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '+d.ax+'개 확인">'+d.ax+'축</span>':'')
+   +(d.gr?'<span title="'+esc(GRT[d.gr]||'')+'">'+esc(d.gr)+'</span>':'')
+   +'<span>'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span></div>'
+   +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')+'</div><div class="body">';
   for(const a of d.a){
    out+='<div class="app"><span class="st">'+esc(a.st)+'</span> · '+esc(a.on)+' 지원'
     +(a.pf?' · '+esc(a.pf):'')+(a.t?'<br>'+esc(a.t):'')
