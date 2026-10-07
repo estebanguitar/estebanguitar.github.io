@@ -35,6 +35,14 @@ text-transform:uppercase;letter-spacing:.06em}
 .sub{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:0 10px;font-size:11px;color:var(--mut);margin-top:-4px}
 .sub .tag{font-size:10px;padding:0 5px}
 .sub .axw{color:var(--g1)}
+.anb{font-size:11px;font-weight:700;color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.an{border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:4px 0 12px;font-size:13px;line-height:1.55}
+.an h3{font-size:15px;margin:2px 0 6px}.an h4{font-size:13px;margin:12px 0 4px;color:var(--acc)}
+.an blockquote{margin:4px 0 8px;padding:6px 10px;border-left:3px solid var(--acc);font-weight:600}
+.an p{margin:3px 0}.an ul{margin:3px 0 3px 18px;padding:0}
+.an .tw{overflow-x:auto}.an table{border-collapse:collapse;width:100%;margin:4px 0;font-size:12px}
+.an th,.an td{border:1px solid var(--line);padding:3px 6px;text-align:left;vertical-align:top}
+.an th{background:color-mix(in srgb,var(--acc) 10%,transparent)}
 .tag{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
 .G진행중{color:var(--g0)}.G고민중{color:var(--g1)}.G지원권고{color:var(--g2)}
 .G조건부{color:var(--g3)}.G보류{color:var(--g4)}.G종료{color:var(--g5)}
@@ -146,6 +154,8 @@ let active=new Set(ORD.filter(g=>g!=='종료'&&g!=='진행중'));
 let repOnly=false;
 // 추천 상위 칩을 켜면 지원권고 추천 순위 상위 30곳만 보인다
 let topOnly=false;
+// 분석 완료 칩을 켜면 심층 분석 보고서가 있는 회사만 보인다
+let anOnly=false;
 const bar=document.getElementById('bar'), list=document.getElementById('list');
 function chips(){
  bar.querySelectorAll('.chip').forEach(n=>n.remove());
@@ -165,13 +175,19 @@ function chips(){
  if(!nt) topOnly=false;
  if(nt){const b=document.createElement('button');b.className='chip';b.id='topchip';
   b.setAttribute('aria-pressed',topOnly);b.innerHTML='추천 상위<b>'+nt+'</b>';
-  b.onclick=()=>{topOnly=!topOnly;if(topOnly)repOnly=false;b.setAttribute('aria-pressed',topOnly);chips();render();};
+  b.onclick=()=>{topOnly=!topOnly;if(topOnly){repOnly=false;anOnly=false;}b.setAttribute('aria-pressed',topOnly);chips();render();};
   bar.insertBefore(b,document.getElementById('q'));}
  const nr=D.filter(d=>d.ru).length;
  if(!nr) repOnly=false;
  if(nr){const b=document.createElement('button');b.className='chip';b.id='repchip';
   b.setAttribute('aria-pressed',repOnly);b.innerHTML='평판 확인<b>'+nr+'</b>';
-  b.onclick=()=>{repOnly=!repOnly;if(repOnly)topOnly=false;b.setAttribute('aria-pressed',repOnly);chips();render();};
+  b.onclick=()=>{repOnly=!repOnly;if(repOnly){topOnly=false;anOnly=false;}b.setAttribute('aria-pressed',repOnly);chips();render();};
+  bar.insertBefore(b,document.getElementById('q'));}
+ const na=D.filter(d=>d.an).length;
+ if(!na) anOnly=false;
+ if(na){const b=document.createElement('button');b.className='chip';b.id='anchip';
+  b.setAttribute('aria-pressed',anOnly);b.innerHTML='분석 완료<b>'+na+'</b>';
+  b.onclick=()=>{anOnly=!anOnly;if(anOnly){topOnly=false;repOnly=false;}b.setAttribute('aria-pressed',anOnly);chips();render();};
   bar.insertBefore(b,document.getElementById('q'));}}
 document.getElementById('q').oninput=e=>{q=e.target.value.trim();render();};
 // 카드 펼침은 이벤트 위임 — 인라인 onclick 은 module 스코프에서 안 잡힌다
@@ -185,6 +201,22 @@ const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"
 function hl(s){if(!q)return esc(s);
  return esc(s).replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>'<mark>'+m+'</mark>');}
 // 확인 등급 — 그 회사 축 값 중 가장 낮은 등급을 보여준다
+// 심층 분석 보고서용 마크다운 렌더러. 제목·인용·표·목록·굵게만 다룬다
+function mdRender(src){
+ const il=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+ const L=String(src||'').split('\n'); let h='',i=0;
+ while(i<L.length){const l=L[i];
+  if(/^\|/.test(l)){const rows=[];while(i<L.length&&/^\|/.test(L[i])){rows.push(L[i]);i++;}
+   const cells=r=>r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+   const body=rows.filter(r=>!/^\|[\s:\-|]+\|$/.test(r));
+   h+='<div class="tw"><table>'+body.map((r,k)=>'<tr>'+cells(r).map(c=>k?'<td>'+il(c)+'</td>':'<th>'+il(c)+'</th>').join('')+'</tr>').join('')+'</table></div>';continue;}
+  if(/^- /.test(l)){h+='<ul>';while(i<L.length&&/^- /.test(L[i])){h+='<li>'+il(L[i].slice(2))+'</li>';i++;}h+='</ul>';continue;}
+  if(/^## /.test(l))h+='<h4>'+il(l.slice(3))+'</h4>';
+  else if(/^# /.test(l))h+='<h3>'+il(l.slice(2))+'</h3>';
+  else if(/^> /.test(l))h+='<blockquote>'+il(l.slice(2))+'</blockquote>';
+  else if(l.trim())h+='<p>'+il(l)+'</p>';
+  i++;}
+ return h;}
 const GRC={'확인됨(공시)':'g0','확인됨':'g1','참고값':'g2','단일출처':'g2','하한만':'g3','불일치':'g3','추정':'g3','리뷰없음':'g4'};
 const GRT={'확인됨(공시)':'DART 전자공시 값이다. 회사가 직접 신고했다',
   '확인됨':'출처 2개 이상이 1.2배 안에서 일치한다',
@@ -197,7 +229,7 @@ const GRT={'확인됨(공시)':'DART 전자공시 값이다. 회사가 직접 �
 function render(){
  // 🔴 등록된 공고가 없는 회사는 지원할 길이 없다. 화면에서 뺀다.
  //    검색어를 넣으면 다시 보여 과거 판정을 찾을 수 있게 둔다.
- let rows=topOnly?D.filter(d=>d.rn&&d.rn<=30).sort((a,b)=>a.rn-b.rn):repOnly?D.filter(d=>d.ru):D.filter(d=>active.has(d.g)&&(q||!d.np));
+ let rows=topOnly?D.filter(d=>d.rn&&d.rn<=30).sort((a,b)=>a.rn-b.rn):repOnly?D.filter(d=>d.ru):anOnly?D.filter(d=>d.an):D.filter(d=>active.has(d.g)&&(q||!d.np));
  if(q){const t=q.toLowerCase();
   rows=rows.filter(d=>d.c.toLowerCase().includes(t)||(d.sm||'').toLowerCase().includes(t)
     ||(d.hh&&'헤드헌터헤드헌팅'.includes(t))||(d.np&&'공고없음'.includes(t))
@@ -218,6 +250,7 @@ function render(){
    +(d.ws&&d.ws!=='완료'?'<span class="ws '+({'조사대기':'w2','마감':'w3'}[d.ws]||'')+'" title="작업 상태 — 조사대기는 축을 채우면 등급이 올라갈 수 있다">'+esc(d.ws)+'</span>':'')
    +(d.ru?'<span class="rq" title="리뷰 평점이 이 회사 것인지 확인하지 못했다">평판 확인</span>':'')
    +(d.hh?'<span class="hh" title="헤드헌터 경유 공고 — 실제 채용 회사가 공개되지 않는다">헤드헌터</span>':'')
+   +(d.an?'<span class="anb" title="카드를 펼치면 리뷰·재무·런웨이 심층 분석이 보인다">분석 보기</span>':'')
    +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
    +(d.rn?'<span class="rk" title="추천 점수 — '+esc(d.rb||'')+'">추천 '+d.rn+'위 · '+d.rk+'</span>'
      :d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="'+stT+'">안정 '+d.st+'</span>':'')
@@ -228,7 +261,7 @@ function render(){
    +(d.ft!=null&&d.ax!=null?'<span class="'+(d.ax>=3?'':'axw')+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '+d.ax+'개 확인">'+d.ax+'축</span>':'')
    +(d.gr?'<span title="'+esc(GRT[d.gr]||'')+'">'+esc(d.gr)+'</span>':'')
    +'<span>'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span></div>'
-   +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')+'</div><div class="body">';
+   +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')+'</div><div class="body">'+(d.an?'<div class="an">'+mdRender(d.an.md)+'</div>':'');
   for(const a of d.a){
    out+='<div class="app"><span class="st">'+esc(a.st)+'</span> · '+esc(a.on)+' 지원'
     +(a.pf?' · '+esc(a.pf):'')+(a.t?'<br>'+esc(a.t):'')
