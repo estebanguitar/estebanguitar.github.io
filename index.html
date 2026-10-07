@@ -154,7 +154,7 @@ let active=new Set(ORD.filter(g=>g!=='종료'&&g!=='진행중'));
 let repOnly=false;
 // 추천 상위 칩을 켜면 지원권고 추천 순위 상위 30곳만 보인다
 let topOnly=false;
-// 분석 완료 칩을 켜면 심층 분석 보고서가 있는 회사만 보인다
+// 분석 완료 칩을 켜면 심층 분석 보고서가 있는 고민중 회사만 보인다
 let anOnly=false;
 const bar=document.getElementById('bar'), list=document.getElementById('list');
 function chips(){
@@ -183,7 +183,7 @@ function chips(){
   b.setAttribute('aria-pressed',repOnly);b.innerHTML='평판 확인<b>'+nr+'</b>';
   b.onclick=()=>{repOnly=!repOnly;if(repOnly){topOnly=false;anOnly=false;}b.setAttribute('aria-pressed',repOnly);chips();render();};
   bar.insertBefore(b,document.getElementById('q'));}
- const na=D.filter(d=>d.an).length;
+ const na=D.filter(d=>d.an&&d.g==='고민중').length;
  if(!na) anOnly=false;
  if(na){const b=document.createElement('button');b.className='chip';b.id='anchip';
   b.setAttribute('aria-pressed',anOnly);b.innerHTML='분석 완료<b>'+na+'</b>';
@@ -229,7 +229,7 @@ const GRT={'확인됨(공시)':'DART 전자공시 값이다. 회사가 직접 �
 function render(){
  // 🔴 등록된 공고가 없는 회사는 지원할 길이 없다. 화면에서 뺀다.
  //    검색어를 넣으면 다시 보여 과거 판정을 찾을 수 있게 둔다.
- let rows=topOnly?D.filter(d=>d.rn&&d.rn<=30).sort((a,b)=>a.rn-b.rn):repOnly?D.filter(d=>d.ru):anOnly?D.filter(d=>d.an):D.filter(d=>active.has(d.g)&&(q||!d.np));
+ let rows=topOnly?D.filter(d=>d.rn&&d.rn<=30).sort((a,b)=>a.rn-b.rn):repOnly?D.filter(d=>d.ru):anOnly?D.filter(d=>d.an&&d.g==='고민중'):D.filter(d=>active.has(d.g)&&(q||!d.np));
  if(q){const t=q.toLowerCase();
   rows=rows.filter(d=>d.c.toLowerCase().includes(t)||(d.sm||'').toLowerCase().includes(t)
     ||(d.hh&&'헤드헌터헤드헌팅'.includes(t))||(d.np&&'공고없음'.includes(t))
