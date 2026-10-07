@@ -38,6 +38,8 @@ text-transform:uppercase;letter-spacing:.06em}
 .meta{font-size:12px;color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
 .hh{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
  margin-right:5px;color:#7c2d12;background:#fed7aa;border:1px solid #fb923c}
+.rk{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
+ margin-right:5px;color:#14532d;background:#dcfce7;border:1px solid #4ade80}
 .rq{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
  margin-right:5px;color:#1e3a8a;background:#dbeafe;border:1px solid #60a5fa}
 .rqb{border-left:3px solid #60a5fa;padding:9px 12px;border-radius:0 6px 6px 0;margin:12px 0;font-size:13px;
@@ -139,6 +141,8 @@ const ORD=["진행중", "고민중", "지원권고", "조건부", "미검토", "
 let active=new Set(ORD.filter(g=>g!=='종료'&&g!=='진행중'));
 // 평판 확인 칩을 켜면 판정 칩과 무관하게 확인할 회사만 보인다
 let repOnly=false;
+// 추천 상위 칩을 켜면 지원권고 추천 순위 상위 30곳만 보인다
+let topOnly=false;
 const bar=document.getElementById('bar'), list=document.getElementById('list');
 function chips(){
  bar.querySelectorAll('.chip').forEach(n=>n.remove());
@@ -154,11 +158,17 @@ function chips(){
      b.disabled=false; b.innerHTML=o;}
    render();};
   bar.insertBefore(b,document.getElementById('q'));});
+ const nt=D.filter(d=>d.rn&&d.rn<=30).length;
+ if(!nt) topOnly=false;
+ if(nt){const b=document.createElement('button');b.className='chip';b.id='topchip';
+  b.setAttribute('aria-pressed',topOnly);b.innerHTML='추천 상위<b>'+nt+'</b>';
+  b.onclick=()=>{topOnly=!topOnly;if(topOnly)repOnly=false;b.setAttribute('aria-pressed',topOnly);chips();render();};
+  bar.insertBefore(b,document.getElementById('q'));}
  const nr=D.filter(d=>d.ru).length;
  if(!nr) repOnly=false;
  if(nr){const b=document.createElement('button');b.className='chip';b.id='repchip';
   b.setAttribute('aria-pressed',repOnly);b.innerHTML='평판 확인<b>'+nr+'</b>';
-  b.onclick=()=>{repOnly=!repOnly;b.setAttribute('aria-pressed',repOnly);render();};
+  b.onclick=()=>{repOnly=!repOnly;if(repOnly)topOnly=false;b.setAttribute('aria-pressed',repOnly);chips();render();};
   bar.insertBefore(b,document.getElementById('q'));}}
 document.getElementById('q').oninput=e=>{q=e.target.value.trim();render();};
 // 카드 펼침은 이벤트 위임 — 인라인 onclick 은 module 스코프에서 안 잡힌다
@@ -184,7 +194,7 @@ const GRT={'확인됨(공시)':'DART 전자공시 값이다. 회사가 직접 �
 function render(){
  // 🔴 등록된 공고가 없는 회사는 지원할 길이 없다. 화면에서 뺀다.
  //    검색어를 넣으면 다시 보여 과거 판정을 찾을 수 있게 둔다.
- let rows=repOnly?D.filter(d=>d.ru):D.filter(d=>active.has(d.g)&&(q||!d.np));
+ let rows=topOnly?D.filter(d=>d.rn&&d.rn<=30).sort((a,b)=>a.rn-b.rn):repOnly?D.filter(d=>d.ru):D.filter(d=>active.has(d.g)&&(q||!d.np));
  if(q){const t=q.toLowerCase();
   rows=rows.filter(d=>d.c.toLowerCase().includes(t)||(d.sm||'').toLowerCase().includes(t)
     ||(d.hh&&'헤드헌터헤드헌팅'.includes(t))||(d.np&&'공고없음'.includes(t))
@@ -205,6 +215,7 @@ function render(){
    +(d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="기업안정성 '+d.st
        +' — 재무 40% · 평판 30% · 인원 20% · 연봉 10%. 확인하지 못한 축은 50점 중립으로 넣는다'
        +(d.sd?'&#10;'+esc(d.sd):'')+'">'+d.st+'</span>':'')
+   +(d.rn?'<span class="rk" title="추천 점수 — '+esc(d.rb||'')+'">추천 '+d.rn+'위 · '+d.rk+'</span>':'')
    +(d.ru?'<span class="rq" title="리뷰 평점이 이 회사 것인지 확인하지 못했다">평판 확인</span>':'')
    +(d.hh?'<span class="hh" title="헤드헌터 경유 공고 — 실제 채용 회사가 공개되지 않는다">헤드헌터</span>':'')
    +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
