@@ -240,6 +240,10 @@ function render(){
     +(p.bm?'<span class="bm">★북마크</span>':'')
     +(p.jd?'<div class="jd">'+esc(p.jd)+'</div>':'')+'</div>';}
    out+='</div>';}
+  if(d.ph&&d.ph.length){out+='<details class="more"><summary>맞지 않아 숨긴 공고 '+d.ph.length+'건</summary><div class="jobs">';
+   for(const p of d.ph){out+='<div class="job expired">'+pvb(p)+'<span class="pf">'+esc(p.pf)+'</span>'
+    +(p.u?'<a href="'+esc(p.u)+'" target="_blank" rel="noopener">'+esc(p.t)+'</a>':esc(p.t))+'</div>';}
+   out+='</div></details>';}
   // 🔴 이력이 카드당 평균 4.9건·2,111자라 스크롤이 길었다. 최신 1건만 펼치고 나머지는 접는다.
   //    검색 중에는 찾는 말이 옛 이력에 있을 수 있으므로 모두 펼친다.
   const hs=d.h.slice().reverse();
