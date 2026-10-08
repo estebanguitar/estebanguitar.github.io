@@ -45,7 +45,7 @@ text-transform:uppercase;letter-spacing:.06em}
 .an th{background:color-mix(in srgb,var(--acc) 10%,transparent)}
 .tag{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
 .G진행중{color:var(--g0)}.G고민중{color:var(--g1)}.G지원권고{color:var(--g2)}
-.G조건부{color:var(--g3)}.G보류{color:var(--g4)}.G종료{color:var(--g5)}
+.G조건부{color:var(--g3)}.G보류{color:var(--g4)}.G종료{color:var(--g5)}.G지원종료{color:var(--g5)}
 .meta{font-size:12px;color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
 .hh{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 4px;
  margin-right:5px;color:#7c2d12;background:#fed7aa;border:1px solid #fb923c}
@@ -147,9 +147,9 @@ import { getDatabase, ref, get }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
 let D=[], C={}, q='';
-const ORD=["진행중", "고민중", "지원권고", "조건부", "미검토", "보류", "종료"];
+const ORD=["진행중", "지원종료", "고민중", "지원권고", "조건부", "미검토", "보류", "종료"];
 // 🔴 「진행중」 은 이미 지원해 추적만 하는 칸이다. 처음에는 끄고 필요할 때 켠다.
-let active=new Set(ORD.filter(g=>g!=='종료'&&g!=='진행중'));
+let active=new Set(ORD.filter(g=>g!=='종료'&&g!=='진행중'&&g!=='지원종료'));
 // 평판 확인 칩을 켜면 판정 칩과 무관하게 확인할 회사만 보인다
 let repOnly=false;
 // 추천 상위 칩을 켜면 지원권고 추천 순위 상위 30곳만 보인다
