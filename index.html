@@ -159,8 +159,8 @@ let anOnly=false;
 const bar=document.getElementById('bar'), list=document.getElementById('list');
 function chips(){
  bar.querySelectorAll('.chip').forEach(n=>n.remove());
- // 종료 칩은 사용자 요청으로 화면에서 뺐다
- ORD.filter(g=>g!=='종료').forEach(g=>{const b=document.createElement('button');b.className='chip';
+ // 종료·지원종료 칩은 사용자 요청으로 화면에서 뺐다
+ ORD.filter(g=>g!=='종료'&&g!=='지원종료').forEach(g=>{const b=document.createElement('button');b.className='chip';
   b.setAttribute('aria-pressed',active.has(g));b.innerHTML=g+'<b>'+(C[g]||0)+'</b>';
   b.onclick=async()=>{active.has(g)?active.delete(g):active.add(g);
    b.setAttribute('aria-pressed',active.has(g));
