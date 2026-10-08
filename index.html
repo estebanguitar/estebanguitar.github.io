@@ -183,12 +183,8 @@ function chips(){
   b.setAttribute('aria-pressed',repOnly);b.innerHTML='평판 확인<b>'+nr+'</b>';
   b.onclick=()=>{repOnly=!repOnly;if(repOnly){topOnly=false;anOnly=false;}b.setAttribute('aria-pressed',repOnly);chips();render();};
   bar.insertBefore(b,document.getElementById('q'));}
- const na=D.filter(d=>d.an&&d.g==='고민중').length;
- if(!na) anOnly=false;
- if(na){const b=document.createElement('button');b.className='chip';b.id='anchip';
-  b.setAttribute('aria-pressed',anOnly);b.innerHTML='분석 완료<b>'+na+'</b>';
-  b.onclick=()=>{anOnly=!anOnly;if(anOnly){topOnly=false;repOnly=false;}b.setAttribute('aria-pressed',anOnly);chips();render();};
-  bar.insertBefore(b,document.getElementById('q'));}}
+ // 분석 완료 칩은 고민중과 같은 목록이라 뺐다(10-08 사용자)
+}
 document.getElementById('q').oninput=e=>{q=e.target.value.trim();render();};
 // 카드 펼침은 이벤트 위임 — 인라인 onclick 은 module 스코프에서 안 잡힌다
 list.addEventListener('click',e=>{const h=e.target.closest('.hd');
