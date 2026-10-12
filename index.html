@@ -76,7 +76,7 @@ text-transform:uppercase;letter-spacing:.06em}
  border-radius:3px;padding:0 4px;margin-right:5px;letter-spacing:-.2px;border:1.5px solid;background:#fff}
 .S4{color:#15803d;border-color:#15803d}.S3{color:#0369a1;border-color:#0369a1}
 .S2{color:#a16207;border-color:#d97706}.S1{color:#b91c1c;border-color:#dc2626;background:#fef2f2}
-.fn{flex-basis:100%;font-size:11px;color:var(--mut);margin-top:2px;opacity:.85}
+.pft{font-size:11px;color:var(--mut);margin:0 6px 0 2px}.fn{flex-basis:100%;font-size:11px;color:var(--mut);margin-top:2px;opacity:.85}
 .card.open .fn{display:none}
 .pr{display:inline-block;min-width:17px;text-align:center;font-weight:700;font-size:11px;border-radius:3px;padding:1px 4px;margin-right:5px;color:#fff}.PS{background:#b91c1c}.PA{background:#c2410c}.PB{background:#0369a1}.PC{background:#6b7280}
 .bm{color:#e0a020}
@@ -238,7 +238,7 @@ function render(){
   const bm=d.p.some(p=>p.bm)?'<span class="bm" title="북마크">★</span>':'';
   const allExp=d.p.length&&d.p.every(p=>{const n=dday(p.dl);return n!==null&&n<0;})
     ?'<span class="allexp" title="등록된 공고가 모두 마감됨">공고 마감</span>':'';
-  const ftT='직무적합도 '+d.ft+' — 스택 40% · 도메인 30% · 경력요건 20% · 공고 충실도 10%'+(d.fn?'&#10;'+esc(d.fn):'');
+  const ftT='직무적합도(공고 중 최고) '+d.ft+' — 스택 40% · 도메인 30% · 경력요건 20% · 공고 충실도 10%'+(d.fn?'&#10;'+esc(d.fn):'');
   const stT='기업안정성 '+d.st+' — 재무 40% · 평판 30% · 인원 20% · 연봉 10%. 확인하지 못한 축은 50점 중립으로 넣는다'+(d.sd?'&#10;'+esc(d.sd):'');
   // 첫 줄: 회사명과 경고 표시, 오른쪽 끝에 대표 점수 하나
   out+='<div class="card"><div class="hd">'
@@ -275,7 +275,7 @@ function render(){
   if(d.p.length){out+='<div class="jobs">';
    const ps=d.p.slice().sort((a,b)=>(dday(a.dl)===null?0:dday(a.dl)<0?1:0)-(dday(b.dl)===null?0:dday(b.dl)<0?1:0));
    for(const p of ps){const n=dday(p.dl), ex=n!==null&&n<0;
-    out+='<div class="job'+(ex?' expired':'')+'">'+pvb(p)+'<span class="pf">'+esc(p.pf)+'</span>'
+    out+='<div class="job'+(ex?' expired':'')+'">'+pvb(p)+(p.ft!=null?'<span class="pft" title="'+esc(p.fn||'')+'">적합 '+p.ft+'</span>':'')+'<span class="pf">'+esc(p.pf)+'</span>'
     +(p.u?'<a href="'+esc(p.u)+'" target="_blank" rel="noopener">'+esc(p.t||p.jid)+'</a>':esc(p.t||p.jid))
     +(p.dl?'<span class="dl'+(ex?' done':(n!==null&&n<=7?' soon':''))+'">'
         +(ex?'마감됨 '+esc(p.dl):'마감 '+esc(p.dl)+(n!==null?' (D-'+n+')':''))+'</span>':'')
