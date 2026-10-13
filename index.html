@@ -171,12 +171,7 @@ function chips(){
      b.disabled=false; b.innerHTML=o;}
    render();};
   bar.insertBefore(b,document.getElementById('q'));});
- const nt=D.filter(d=>d.rn&&d.rn<=30).length;
- if(!nt) topOnly=false;
- if(nt){const b=document.createElement('button');b.className='chip';b.id='topchip';
-  b.setAttribute('aria-pressed',topOnly);b.innerHTML='추천 상위<b>'+nt+'</b>';
-  b.onclick=()=>{topOnly=!topOnly;if(topOnly){repOnly=false;anOnly=false;}b.setAttribute('aria-pressed',topOnly);chips();render();};
-  bar.insertBefore(b,document.getElementById('q'));}
+ // 추천 상위 칩은 뺐다(10-13 사용자)
  const nr=D.filter(d=>d.ru).length;
  if(!nr) repOnly=false;
  if(nr){const b=document.createElement('button');b.className='chip';b.id='repchip';
