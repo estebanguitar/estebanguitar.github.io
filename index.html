@@ -50,6 +50,14 @@ text-transform:uppercase;letter-spacing:.06em}
 .kmt{list-style:none;padding:0;margin:0}.kmt>li{margin:10px 0}.kmt .kh{font-weight:700;font-size:13px}.kmt .kc{font-size:12px;color:var(--mut);margin:6px 0 2px}
 .kw{display:inline-block;border-radius:999px;padding:2px 9px;margin:2px 3px;font-size:12px;cursor:pointer;border:1px solid}
 .kw.s0{color:#1e8449;border-color:#1e8449}.kw.s1{color:#c0392b;border-color:#c0392b}.kw.s2{color:var(--mut);border-color:var(--mut)}
+.cmpck{font-size:11px;color:var(--mut);display:inline-flex;align-items:center;gap:2px;cursor:pointer;white-space:nowrap}
+.cmpbar{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 8px 6px 14px;box-shadow:0 4px 16px rgba(0,0,0,.18);font-size:13px;display:flex;gap:8px;align-items:center;max-width:calc(100% - 32px)}
+.cmpbar[hidden]{display:none}.cmpbar button{font:inherit;border-radius:999px;border:1px solid var(--acc);padding:4px 12px;cursor:pointer;background:var(--acc);color:#fff}
+.cmpbar button.ghost{background:none;color:var(--acc)}.cmpbar button:disabled{opacity:.4;cursor:default}
+.ct{width:100%;border-collapse:collapse;font-size:13px}.ct th,.ct td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+.ct th{width:24%;color:var(--mut);font-weight:600}.ct .grp td{background:color-mix(in srgb,var(--acc) 10%,transparent);font-weight:700;font-size:12px}
+.ct td.win{background:color-mix(in srgb,#1e8449 16%,transparent)}.ct .unk{color:var(--mut)}.ct small{color:var(--mut)}
+.cscore{font-size:13px;margin:0 0 8px}@media(max-width:640px){.ct{font-size:11.5px}.ct th{width:28%}}
 .kmall{font-size:12px;margin:2px 0 6px;cursor:pointer;color:var(--acc);background:none;border:none;font-family:inherit;padding:0}
 .an{border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:4px 0 12px;font-size:13px;line-height:1.55}
 .an h3{font-size:15px;margin:2px 0 6px}.an h4{font-size:13px;margin:12px 0 4px;color:var(--acc)}
@@ -161,7 +169,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signO
 import { getDatabase, ref, get }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-let D=[], C={}, q='', ROWS=[], MO=[];
+let D=[], C={}, q='', ROWS=[], MO=[], CMP=new Set();
 const ORD=["진행중", "지원종료", "고민중", "지원권고", "조건부", "미검토", "헤드헌터", "공고없음", "종료"];
 // 🔴 「진행중」 은 이미 지원해 추적만 하는 칸이다. 처음에는 끄고 필요할 때 켠다.
 let active=new Set(ORD.filter(g=>g!=='종료'&&g!=='공고없음'&&g!=='헤드헌터'&&g!=='진행중'&&g!=='지원종료'));
@@ -197,7 +205,8 @@ function chips(){
 }
 document.getElementById('q').oninput=e=>{q=e.target.value.trim();render();};
 // 카드 펼침은 이벤트 위임 — 인라인 onclick 은 module 스코프에서 안 잡힌다
-list.addEventListener('click',e=>{const b=e.target.closest('.anb');
+list.addEventListener('click',e=>{if(e.target.closest('.cmpck')) return;
+ const b=e.target.closest('.anb');
  if(b){openM(+b.dataset.i);return;}
  const h=e.target.closest('.hd');
  if(h&&!e.target.closest('a')) h.parentNode.classList.toggle('open');});
@@ -261,6 +270,7 @@ function render(){
    +(d.ru?'<span class="rq" title="리뷰 평점이 이 회사 것인지 확인하지 못했다">평판 확인</span>':'')
    +(d.hh?'<span class="hh" title="헤드헌터 경유 공고 — 실제 채용 회사가 공개되지 않는다">헤드헌터</span>':'')
    +((d.an||d.h.length)?'<button class="anb" data-i="'+ri+'" title="핵심어 지도·요약·실사 원문을 새 창으로 본다">요약 보기</button>':'')
+   +(d.cmp?'<label class="cmpck" title="두 곳을 골라 비교한다"><input type="checkbox" data-c="'+esc(d.c)+'"'+(CMP.has(d.c)?' checked':'')+'>비교</label>':'')
    +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
    +(d.rn?'<span class="rk" title="추천 점수 — '+esc(d.rb||'')+'">추천 '+d.rn+'위 · '+d.rk+'</span>'
      :d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="'+stT+'">안정 '+d.st+'</span>':'')
@@ -390,6 +400,61 @@ mdl.addEventListener('click',e=>{
  const k=e.target.closest('[data-q]');
  if(k){const b=mdl.querySelector('.kmq'); if(b){b.innerHTML='<b>'+esc(k.dataset.w)+'</b> — '+(esc(k.dataset.q)||'근거 문장 없음'); b.classList.add('on');}}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!mdl.hidden) closeM();});
+// 두 회사 비교: 카드의 비교 체크 두 곳 → 하단 막대 → 비교 모달
+const cbar=document.createElement('div'); cbar.className='cmpbar'; cbar.hidden=true; document.body.appendChild(cbar);
+function drawBar(){cbar.hidden=!CMP.size;
+ cbar.innerHTML='<span>'+[...CMP].map(esc).join(' · ')+(CMP.size<2?' <small>(한 곳 더 고르기)</small>':'')+'</span>'
+  +'<button class="go"'+(CMP.size===2?'':' disabled')+'>비교하기</button><button class="ghost clr">해제</button>';}
+list.addEventListener('change',e=>{const c=e.target.closest('.cmpck input'); if(!c) return;
+ const n=c.dataset.c;
+ if(c.checked){ if(CMP.size>=2){c.checked=false; return;} CMP.add(n);} else CMP.delete(n);
+ drawBar();});
+cbar.addEventListener('click',e=>{
+ if(e.target.closest('.clr')){CMP.clear(); drawBar(); render(); return;}
+ if(e.target.closest('.go')&&CMP.size===2) openCmp();});
+const fmt=(v,u)=>v==null||v===''?null:(typeof v==='number'?v.toLocaleString()+(u||''):String(v));
+function cmpRows(d){const m=d.cmp||{}, f=(m.fin||[])[0], f2=(m.fin||[])[1], h=m.hc, r=(m.rep||{}).site||{}, km=(m.risk||[]).length>0;
+ return [
+ ['재무'],
+ ['매출 (최근 회계연도)', f&&f[1], f?fmt(f[1],'억')+' <small>'+esc(f[0])+(f2&&f2[1]!=null?' · 전년 '+f2[1].toLocaleString()+'억':'')+'</small>':null,'hi'],
+ ['영업이익률', f&&f[2], f&&f[2]!=null?f[2]+'% <small>영업이익 '+fmt(f[3],'억')+'</small>':null,'hi'],
+ ['순이익', f&&f[4], f?fmt(f[4],'억'):null,'hi'],
+ ['현금', f&&f[5], f?fmt(f[5],'억'):null,'hi'],
+ ['차입금', f&&f[6], f?fmt(f[6],'억'):null,'lo'],
+ ['영업현금흐름', f&&f[7], f?fmt(f[7],'억'):null,'hi'],
+ ['감사의견 · 출처', null, f?esc(f[8]||'미기재')+' <small>'+esc(f[9])+'</small>':null],
+ ['고용안정성'],
+ ['국민연금 인원', null, h?h.now.toLocaleString()+'명 <small>'+esc(h.ym)+'</small>':null],
+ ['12개월 증감', h&&h.d12, h&&h.d12!=null?(h.d12>0?'+':'')+h.d12+'명':null,'hi'],
+ ['12개월 이직률', h&&h.to, h&&h.to!=null?h.to+'%':null,'lo'],
+ ['리뷰'],
+ ['잡플래닛', r['잡플래닛']&&r['잡플래닛'][0], r['잡플래닛']?r['잡플래닛'][0]+' <small>'+(r['잡플래닛'][1]||'?')+'건</small>':null,'hi'],
+ ['블라인드', r['블라인드']&&r['블라인드'][0], r['블라인드']?r['블라인드'][0]+' <small>'+(r['블라인드'][1]||'?')+'건</small>':null,'hi'],
+ ['결격 증언 flag', m.rep?m.rep.disq:null, m.rep?m.rep.disq+'건':null,'lo'],
+ ['야근·워라밸 (핵심어 지도)'],
+ ['칼퇴·워라밸 긍정 증언', km?m.wl['강점']:null, km?m.wl['강점']+'':null,'hi'],
+ ['야근·포괄 부정 증언', km?m.wl['위험']:null, km?m.wl['위험']+'':null,'lo'],
+ ['처우'],
+ ['연봉 (DART 끼리만 우위 판정)', m.sal&&/^DART/.test(m.sal[1])?m.sal[0]:null, m.sal?Math.round(m.sal[0]).toLocaleString()+'만원 <small>'+esc(m.sal[1])+(/^DART/.test(m.sal[1])?'':' · 참고값')+' · 현 6,700 대비 '+(m.sal[0]>=6700?'+':'')+Math.round(m.sal[0]-6700).toLocaleString()+'</small>':null,'hi'],
+ ['직무'],
+ ['직무적합도', d.ft, d.ft!=null?d.ft+' <small>'+esc((d.fn||'').slice(0,40))+'</small>':null,'hi'],
+ ['출퇴근 (판정 안 함)'],
+ ['근무지', null, (m.addr||[]).length?m.addr.map(esc).join('<br>'):null],
+ ['교통 관련 복지', null, (m.perk||[]).length?m.perk.map(esc).join('<br>'):'<span class="unk">공고에 언급 없음</span>'],
+ ['위험 (핵심어 지도 상위 3)'],
+ ['위험 핵심어', null, km?m.risk.map(esc).join(' · '):null]];}
+function openCmp(){const [a,b]=[...CMP].map(n=>D.find(x=>x.c===n)); if(!a||!b) return;
+ const ra=cmpRows(a), rb=cmpRows(b); let wa=0, wb=0, body='';
+ ra.forEach((x,i)=>{const y=rb[i];
+  if(x.length===1){body+='<tr class="grp"><td colspan="3">'+esc(x[0])+'</td></tr>'; return;}
+  let ca='', cb='';
+  if(x[3]&&x[1]!=null&&y[1]!=null&&x[1]!==y[1]){const aw=x[3]==='hi'?x[1]>y[1]:x[1]<y[1]; if(aw){ca='win';wa++;}else{cb='win';wb++;}}
+  const cell=(v,c)=>'<td class="'+c+'">'+(v==null?'<span class="unk">미확인</span>':v)+'</td>';
+  body+='<tr><th>'+esc(x[0])+'</th>'+cell(x[2],ca)+cell(y[2],cb)+'</tr>';});
+ mdl.innerHTML='<div class="mbox" role="dialog" aria-modal="true"><div class="mtop"><b>회사 비교</b><button class="mx" aria-label="닫기">×</button></div>'
+  +'<p class="cscore">우위 항목 수 — '+esc(a.c)+' <b>'+wa+'</b> : <b>'+wb+'</b> '+esc(b.c)+' <small>(미확인·동률은 세지 않는다. 종합 점수는 내지 않는다)</small></p>'
+  +'<div class="tw"><table class="ct"><thead><tr><th></th><th>'+esc(a.c)+'</th><th>'+esc(b.c)+'</th></tr></thead><tbody>'+body+'</tbody></table></div></div>';
+ mdl.hidden=false; document.body.style.overflow='hidden';}
 function load(j,label,cls){
  D=j.data; C=j.counts;
  document.getElementById('gen').textContent=j.gen;
