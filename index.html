@@ -35,7 +35,22 @@ text-transform:uppercase;letter-spacing:.06em}
 .sub{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:0 10px;font-size:11px;color:var(--mut);margin-top:-4px}
 .sub .tag{font-size:10px;padding:0 5px}
 .sub .axw{color:var(--g1)}
-.anb{font-size:11px;font-weight:700;color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.anb{font-size:11px;font-weight:700;color:var(--acc);border:1px solid var(--acc);border-radius:999px;padding:1px 8px;white-space:nowrap;background:none;cursor:pointer;font-family:inherit}
+.mdl{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow-y:auto}
+.mdl[hidden]{display:none}
+.mbox{background:var(--card);color:var(--fg);border-radius:12px;max-width:1000px;width:100%;padding:14px 16px 18px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.mtop{display:flex;align-items:center;gap:8px;margin-bottom:8px}.mtop b{font-size:16px;flex:1}
+.mx{border:none;background:none;font-size:22px;line-height:1;cursor:pointer;color:var(--mut)}
+.mtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.mtab{border:none;background:none;padding:6px 12px;cursor:pointer;font:inherit;font-size:13px;color:var(--mut);border-bottom:2px solid transparent}
+.mtab[aria-selected=true]{color:var(--fg);border-bottom-color:var(--acc);font-weight:700}
+.mtab:disabled{opacity:.35;cursor:default}
+.km svg{width:100%;height:auto;display:block}.km .kt{cursor:pointer}.km .kt:hover{text-decoration:underline}
+.kmq{font-size:13px;margin:8px 0;padding:6px 10px;border-left:3px solid var(--acc);display:none}.kmq.on{display:block}
+.kmt{list-style:none;padding:0;margin:0}.kmt>li{margin:10px 0}.kmt .kh{font-weight:700;font-size:13px}.kmt .kc{font-size:12px;color:var(--mut);margin:6px 0 2px}
+.kw{display:inline-block;border-radius:999px;padding:2px 9px;margin:2px 3px;font-size:12px;cursor:pointer;border:1px solid}
+.kw.s0{color:#1e8449;border-color:#1e8449}.kw.s1{color:#c0392b;border-color:#c0392b}.kw.s2{color:var(--mut);border-color:var(--mut)}
+.kmall{font-size:12px;margin:2px 0 6px;cursor:pointer;color:var(--acc);background:none;border:none;font-family:inherit;padding:0}
 .an{border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:4px 0 12px;font-size:13px;line-height:1.55}
 .an h3{font-size:15px;margin:2px 0 6px}.an h4{font-size:13px;margin:12px 0 4px;color:var(--acc)}
 .an blockquote{margin:4px 0 8px;padding:6px 10px;border-left:3px solid var(--acc);font-weight:600}
@@ -146,7 +161,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signO
 import { getDatabase, ref, get }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-let D=[], C={}, q='';
+let D=[], C={}, q='', ROWS=[], MO=[];
 const ORD=["진행중", "지원종료", "고민중", "지원권고", "조건부", "미검토", "헤드헌터", "공고없음", "종료"];
 // 🔴 「진행중」 은 이미 지원해 추적만 하는 칸이다. 처음에는 끄고 필요할 때 켠다.
 let active=new Set(ORD.filter(g=>g!=='종료'&&g!=='공고없음'&&g!=='헤드헌터'&&g!=='진행중'&&g!=='지원종료'));
@@ -182,7 +197,9 @@ function chips(){
 }
 document.getElementById('q').oninput=e=>{q=e.target.value.trim();render();};
 // 카드 펼침은 이벤트 위임 — 인라인 onclick 은 module 스코프에서 안 잡힌다
-list.addEventListener('click',e=>{const h=e.target.closest('.hd');
+list.addEventListener('click',e=>{const b=e.target.closest('.anb');
+ if(b){openM(+b.dataset.i);return;}
+ const h=e.target.closest('.hd');
  if(h&&!e.target.closest('a')) h.parentNode.classList.toggle('open');});
 const TODAY=new Date(); TODAY.setHours(0,0,0,0);
 // 공고 마감까지 남은 일수. 날짜가 없거나 상시채용이면 null
@@ -228,7 +245,9 @@ function render(){
   ||d.h.some(h=>(h.why||'').toLowerCase().includes(t)));}
  document.getElementById('cnt').textContent='표시 '+rows.length+'곳';
  let out='',cur='';
- for(const d of rows){
+ ROWS=rows; MO=[];
+ for(const [ri,d] of rows.entries()){
+  let mo='';
   if(d.g!==cur){cur=d.g;out+='<div class="sec">'+cur+'</div>';}
   const bm=d.p.some(p=>p.bm)?'<span class="bm" title="북마크">★</span>':'';
   const allExp=d.p.length&&d.p.every(p=>{const n=dday(p.dl);return n!==null&&n<0;})
@@ -241,7 +260,7 @@ function render(){
    +(d.ws&&d.ws!=='완료'?'<span class="ws '+({'조사대기':'w2','마감':'w3'}[d.ws]||'')+'" title="작업 상태 — 조사대기는 축을 채우면 등급이 올라갈 수 있다">'+esc(d.ws)+'</span>':'')
    +(d.ru?'<span class="rq" title="리뷰 평점이 이 회사 것인지 확인하지 못했다">평판 확인</span>':'')
    +(d.hh?'<span class="hh" title="헤드헌터 경유 공고 — 실제 채용 회사가 공개되지 않는다">헤드헌터</span>':'')
-   +(d.an?'<span class="anb" title="카드를 펼치면 리뷰·재무·런웨이 심층 분석이 보인다">분석 보기</span>':'')
+   +((d.an||d.h.length)?'<button class="anb" data-i="'+ri+'" title="핵심어 지도·요약·실사 원문을 새 창으로 본다">요약 보기</button>':'')
    +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
    +(d.rn?'<span class="rk" title="추천 점수 — '+esc(d.rb||'')+'">추천 '+d.rn+'위 · '+d.rk+'</span>'
      :d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="'+stT+'">안정 '+d.st+'</span>':'')
@@ -252,18 +271,18 @@ function render(){
    +(d.ft!=null&&d.ax!=null?'<span class="'+(d.ax>=3?'':'axw')+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '+d.ax+'개 확인">'+d.ax+'축</span>':'')
    +(d.gr?'<span title="'+esc(GRT[d.gr]||'')+'">'+esc(d.gr)+'</span>':'')
    +'<span>'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span></div>'
-   +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')+'</div><div class="body">'+(d.an?(d.an.sum?'<div class="an">'+(d.an.sum.stale?'<p class="anst">⚠ 요약 이후 추가 실사 있음 — 회차별 원문을 확인한다</p>':'')+mdRender(d.an.sum.md)+'<details class="more"><summary>회차별 원문</summary>'+mdRender(d.an.md)+'</details></div>':'<div class="an">'+mdRender(d.an.md)+'</div>'):'');
+   +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')+'</div><div class="body">';
   for(const a of d.a){
    out+='<div class="app"><span class="st">'+esc(a.st)+'</span> · '+esc(a.on)+' 지원'
     +(a.pf?' · '+esc(a.pf):'')+(a.t?'<br>'+esc(a.t):'')
     +(a.note?'<div class="why" style="margin-top:7px">'+hl(a.note)+'</div>':'')+'</div>';}
-  if(d.ru){out+='<div class="rqb">';
+  if(d.ru){mo+='<div class="rqb">';
    for(const x of d.ru){const parts=x.r.split(' | ');
-    out+='<div class="rs">'+esc(x.s)+' 평점 — 같은 회사인지 확인</div>';
+    mo+='<div class="rs">'+esc(x.s)+' 평점 — 같은 회사인지 확인</div>';
     const nm=d.c.replace(/\(주\)|㈜|주식회사|\(유\)|유한회사/g,'').replace(/\(.*?\)/g,'').trim();
-    out+='<div><a href="'+(x.s==='블라인드'?'https://www.teamblind.com/kr/company/'+encodeURIComponent(nm)+'/reviews':'https://www.jobplanet.co.kr/search?query='+encodeURIComponent(nm))+'" target="_blank" rel="noopener">'+esc(x.s)+'에서 열기</a></div>';
-    for(const t of parts){out+='<div>'+esc(t).replace(/https?:\/\/[^\s<]+/g,u=>'<a href="'+u+'" target="_blank" rel="noopener">'+u+'</a>')+'</div>';}}
-   out+='</div>';}
+    mo+='<div><a href="'+(x.s==='블라인드'?'https://www.teamblind.com/kr/company/'+encodeURIComponent(nm)+'/reviews':'https://www.jobplanet.co.kr/search?query='+encodeURIComponent(nm))+'" target="_blank" rel="noopener">'+esc(x.s)+'에서 열기</a></div>';
+    for(const t of parts){mo+='<div>'+esc(t).replace(/https?:\/\/[^\s<]+/g,u=>'<a href="'+u+'" target="_blank" rel="noopener">'+u+'</a>')+'</div>';}}
+   mo+='</div>';}
   const PVC={'지원권고':'v0','조건부':'v1','미검토':'v2','제외':'v3'};
   const pvb=p=>p.pv?('<span class="pv '+(PVC[p.pv]||'v2')+'">'+esc(p.pv)+'</span>'
     +(p.rc?'<span class="rc">'+esc(p.rc.replace(/,/g,' · '))+'</span>':'')):'';
@@ -295,16 +314,82 @@ function render(){
   const one=h=>'<div class="rnd"><div class="rh">'+(h.r?h.r+'차 · ':'')+esc(h.d)+' · '+esc(h.v)+'</div>'
     +body(h.why)
     +(h.doc?'<div class="doc">'+esc(h.doc)+'</div>':'')+'</div>';
-  if(q||hs.length<=1){ for(const h of hs) out+=one(h); }
+  if(q||hs.length<=1){ for(const h of hs) mo+=one(h); }
   else{
-   out+=one(hs[0]);
+   mo+=one(hs[0]);
    if(hs.length>1){
-    out+='<details class="more"><summary>이전 실사 '+(hs.length-1)+'건 보기</summary>';
-    for(const h of hs.slice(1)) out+=one(h);
-    out+='</details>';}
+    mo+='<details class="more"><summary>이전 실사 '+(hs.length-1)+'건 보기</summary>';
+    for(const h of hs.slice(1)) mo+=one(h);
+    mo+='</details>';}
   }
+  MO[ri]=mo;
   out+='</div></div>';}
  list.innerHTML=out||'<div class="none">해당하는 회사가 없습니다.</div>';}
+// 요약 보기 모달: 핵심어 지도·요약·원문 세 탭
+const mdl=document.createElement('div'); mdl.className='mdl'; mdl.hidden=true; document.body.appendChild(mdl);
+const KCAT=['재무','조직','평판','처우','업무','절차'], KCOL={'강점':'#1e8449','위험':'#c0392b','확인':'#7f8c8d'};
+let MI=-1, MT='지도', kAll=false;
+function kmGroup(d){const g={};
+ for(const [sd,ct,wd,w,qq] of ((d.an&&d.an.km)||[])){g[sd]=g[sd]||{};(g[sd][ct]=g[sd][ct]||[]).push({wd:wd,w:w,q:qq});}
+ return g;}
+const kfs=w=>Math.round(Math.min(18,11+Math.log2(Math.max(1,w))*2));
+// 넓은 화면: 가운데 회사, 왼쪽 강점, 오른쪽 위험 가지를 SVG 로 그린다
+function kmSvg(d,g){
+ const lim=kAll?99:3, LH=24, W=1000, CX=W/2;
+ const col=sd=>KCAT.filter(c=>g[sd]&&g[sd][c]).map(c=>({c:c,ws:g[sd][c].slice(0,lim),more:Math.max(0,g[sd][c].length-lim)}));
+ const L=col('강점'), R=col('위험');
+ const rows=cs=>cs.reduce((a,x)=>a+x.ws.length+(x.more?1:0),0)+cs.length*0.7;
+ const H=Math.max(rows(L),rows(R),4)*LH+56, CY=H/2+8;
+ let o='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="inherit">';
+ const side=(cs,dir,sd)=>{const color=KCOL[sd], cx=CX+dir*190, wx=CX+dir*265, an=dir<0?'end':'start'; let y=44;
+  for(const x of cs){const n=x.ws.length+(x.more?1:0), mid=y+(n-1)*LH/2;
+   o+='<path d="M'+(CX+dir*80)+' '+CY+' C'+(CX+dir*140)+' '+CY+' '+(CX+dir*130)+' '+mid+' '+(cx-dir*38)+' '+mid+'" stroke="'+color+'" stroke-width="1.5" fill="none" opacity=".55"/>';
+   o+='<rect x="'+(cx-38)+'" y="'+(mid-12)+'" width="76" height="24" rx="12" fill="'+color+'" opacity=".14"/>';
+   o+='<text x="'+cx+'" y="'+(mid+5)+'" text-anchor="middle" font-size="13" font-weight="700" fill="'+color+'">'+esc(x.c)+'</text>';
+   x.ws.forEach((k,i)=>{const yy=y+i*LH;
+    o+='<path d="M'+(cx+dir*38)+' '+mid+' C'+(cx+dir*60)+' '+mid+' '+(wx-dir*30)+' '+yy+' '+(wx-dir*6)+' '+yy+'" stroke="'+color+'" fill="none" opacity=".35"/>';
+    o+='<text class="kt" data-q="'+esc(k.q)+'" data-w="'+esc(k.wd)+'" x="'+wx+'" y="'+(yy+5)+'" text-anchor="'+an+'" font-size="'+kfs(k.w)+'" fill="currentColor">'+esc(k.wd)+(k.w>1?' <tspan fill="'+color+'" font-size="11" opacity=".75">·'+k.w+'</tspan>':'')+'</text>';});
+   if(x.more) o+='<text x="'+wx+'" y="'+(y+x.ws.length*LH+5)+'" text-anchor="'+an+'" font-size="11" fill="'+color+'" opacity=".8">+'+x.more+'개</text>';
+   y+=n*LH+LH*0.7;}};
+ side(L,-1,'강점'); side(R,1,'위험');
+ const nm=d.c.length>12?d.c.slice(0,12)+'…':d.c;
+ o+='<rect x="'+(CX-80)+'" y="'+(CY-20)+'" width="160" height="40" rx="20" fill="var(--acc)"/>';
+ o+='<text x="'+CX+'" y="'+(CY+6)+'" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">'+esc(nm)+'</text>';
+ o+='<text x="'+(CX-265)+'" y="14" text-anchor="end" font-size="12" font-weight="700" fill="'+KCOL['강점']+'">강점</text>';
+ o+='<text x="'+(CX+265)+'" y="14" font-size="12" font-weight="700" fill="'+KCOL['위험']+'">위험</text>';
+ return o+'</svg>';}
+// 좁은 화면과 확인 항목: 범주별 칩 목록
+function kmChips(g,sd,k){const lim=kAll?99:3; let o='';
+ for(const c of KCAT){const ws=(g[sd]&&g[sd][c])||[]; if(!ws.length) continue;
+  o+='<div class="kc">'+esc(c)+'</div>'+ws.slice(0,lim).map(x=>'<span class="kw s'+k+'" data-q="'+esc(x.q)+'" data-w="'+esc(x.wd)+'">'+esc(x.wd)+(x.w>1?' <small style="opacity:.55">·'+x.w+'</small>':'')+'</span>').join('')
+   +(ws.length>lim?'<span class="kw s'+k+'" style="opacity:.6">+'+(ws.length-lim)+'</span>':'');}
+ return o;}
+function tabMap(d){const g=kmGroup(d);
+ if(!Object.keys(g).length) return '<p class="none">이 회사는 핵심어 지도가 아직 없다.</p>';
+ const narrow=window.innerWidth<640;
+ let o='<div class="km"><button class="kmall">'+(kAll?'범주별 상위 3개만 보기':'핵심어 전체 보기')+'</button>';
+ o+=narrow?'<ul class="kmt"><li><div class="kh" style="color:'+KCOL['강점']+'">강점</div>'+kmChips(g,'강점',0)+'</li><li><div class="kh" style="color:'+KCOL['위험']+'">위험</div>'+kmChips(g,'위험',1)+'</li></ul>':kmSvg(d,g);
+ o+='<div class="kmq"></div>';
+ if(g['확인']) o+='<ul class="kmt"><li><div class="kh">면접·지원 전 확인</div>'+kmChips(g,'확인',2)+'</li></ul>';
+ return o+'</div>';}
+function tabSum(d){if(!d.an) return '<p class="none">요약 문서가 없다.</p>';
+ return '<div class="an">'+(d.an.sum?(d.an.sum.stale?'<p class="anst">⚠ 요약 이후 추가 실사 있음 — 원문 탭을 확인한다</p>':'')+mdRender(d.an.sum.md):mdRender(d.an.md))+'</div>';}
+function tabRaw(d){return (d.an&&d.an.sum?'<div class="an">'+mdRender(d.an.md)+'</div>':'')+(MO[MI]||'');}
+function drawM(){const d=ROWS[MI]; if(!d) return;
+ const has={'지도':!!(d.an&&d.an.km),'요약':!!d.an,'원문':true};
+ if(!has[MT]) MT=has['지도']?'지도':has['요약']?'요약':'원문';
+ mdl.innerHTML='<div class="mbox" role="dialog" aria-modal="true"><div class="mtop"><b>'+esc(d.c)+'</b><button class="mx" aria-label="닫기">×</button></div>'
+  +'<div class="mtabs">'+['지도','요약','원문'].map(t=>'<button class="mtab" data-t="'+t+'" aria-selected="'+(t===MT)+'"'+(has[t]?'':' disabled')+'>'+({'지도':'핵심어 지도','요약':'요약','원문':'원문·실사 이력'}[t])+'</button>').join('')+'</div>'
+  +'<div class="mbody">'+(MT==='지도'?tabMap(d):MT==='요약'?tabSum(d):tabRaw(d))+'</div></div>';}
+function openM(i){MI=i; MT='지도'; kAll=false; drawM(); mdl.hidden=false; document.body.style.overflow='hidden';}
+function closeM(){mdl.hidden=true; mdl.innerHTML=''; document.body.style.overflow='';}
+mdl.addEventListener('click',e=>{
+ if(e.target===mdl||e.target.closest('.mx')){closeM();return;}
+ const t=e.target.closest('.mtab'); if(t&&!t.disabled){MT=t.dataset.t;drawM();return;}
+ if(e.target.closest('.kmall')){kAll=!kAll;drawM();return;}
+ const k=e.target.closest('[data-q]');
+ if(k){const b=mdl.querySelector('.kmq'); if(b){b.innerHTML='<b>'+esc(k.dataset.w)+'</b> — '+(esc(k.dataset.q)||'근거 문장 없음'); b.classList.add('on');}}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!mdl.hidden) closeM();});
 function load(j,label,cls){
  D=j.data; C=j.counts;
  document.getElementById('gen').textContent=j.gen;
