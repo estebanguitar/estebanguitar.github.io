@@ -328,7 +328,7 @@ function render(){
 // 요약 보기 모달: 핵심어 지도·요약·원문 세 탭
 const mdl=document.createElement('div'); mdl.className='mdl'; mdl.hidden=true; document.body.appendChild(mdl);
 const KCAT=['재무','조직','평판','처우','업무','절차'], KCOL={'강점':'#1e8449','위험':'#c0392b','확인':'#7f8c8d'};
-let MI=-1, MT='지도', kAll=false;
+let MD=null, MX='', MT='지도', kAll=false;
 function kmGroup(d){const g={};
  for(const [sd,ct,wd,w,qq] of ((d.an&&d.an.km)||[])){g[sd]=g[sd]||{};(g[sd][ct]=g[sd][ct]||[]).push({wd:wd,w:w,q:qq});}
  return g;}
@@ -374,14 +374,14 @@ function tabMap(d){const g=kmGroup(d);
  return o+'</div>';}
 function tabSum(d){if(!d.an) return '<p class="none">요약 문서가 없다.</p>';
  return '<div class="an">'+(d.an.sum?(d.an.sum.stale?'<p class="anst">⚠ 요약 이후 추가 실사 있음 — 원문 탭을 확인한다</p>':'')+mdRender(d.an.sum.md):mdRender(d.an.md))+'</div>';}
-function tabRaw(d){return (d.an&&d.an.sum?'<div class="an">'+mdRender(d.an.md)+'</div>':'')+(MO[MI]||'');}
-function drawM(){const d=ROWS[MI]; if(!d) return;
+function tabRaw(d){return (d.an&&d.an.sum?'<div class="an">'+mdRender(d.an.md)+'</div>':'')+MX;}
+function drawM(){const d=MD; if(!d) return;
  const has={'지도':!!(d.an&&d.an.km),'요약':!!d.an,'원문':true};
  if(!has[MT]) MT=has['지도']?'지도':has['요약']?'요약':'원문';
  mdl.innerHTML='<div class="mbox" role="dialog" aria-modal="true"><div class="mtop"><b>'+esc(d.c)+'</b><button class="mx" aria-label="닫기">×</button></div>'
   +'<div class="mtabs">'+['지도','요약','원문'].map(t=>'<button class="mtab" data-t="'+t+'" aria-selected="'+(t===MT)+'"'+(has[t]?'':' disabled')+'>'+({'지도':'핵심어 지도','요약':'요약','원문':'원문·실사 이력'}[t])+'</button>').join('')+'</div>'
   +'<div class="mbody">'+(MT==='지도'?tabMap(d):MT==='요약'?tabSum(d):tabRaw(d))+'</div></div>';}
-function openM(i){MI=i; MT='지도'; kAll=false; drawM(); mdl.hidden=false; document.body.style.overflow='hidden';}
+function openM(i){MD=ROWS[i]; MX=MO[i]||''; MT='지도'; kAll=false; drawM(); mdl.hidden=false; document.body.style.overflow='hidden';}
 function closeM(){mdl.hidden=true; mdl.innerHTML=''; document.body.style.overflow='';}
 mdl.addEventListener('click',e=>{
  if(e.target===mdl||e.target.closest('.mx')){closeM();return;}
