@@ -426,7 +426,7 @@ function cmpRows(d){const m=d.cmp||{}, f=(m.fin||[])[0], f2=(m.fin||[])[1], h=m.
  ['고용안정성'],
  ['국민연금 인원', null, h?h.now.toLocaleString()+'명 <small>'+esc(h.ym)+'</small>':null],
  ['12개월 증감', h&&h.d12, h&&h.d12!=null?(h.d12>0?'+':'')+h.d12+'명':null,'hi'],
- ['12개월 이직률', h&&h.to, h&&h.to!=null?h.to+'%':null,'lo'],
+ ['이직률 (연환산)', h&&h.to, h&&h.to!=null?h.to+'% <small>'+(h.n||12)+'개월 기준</small>':null,'lo'],
  ['리뷰'],
  ['잡플래닛', r['잡플래닛']&&r['잡플래닛'][0], r['잡플래닛']?r['잡플래닛'][0]+' <small>'+(r['잡플래닛'][1]||'?')+'건</small>':null,'hi'],
  ['블라인드', r['블라인드']&&r['블라인드'][0], r['블라인드']?r['블라인드'][0]+' <small>'+(r['블라인드'][1]||'?')+'건</small>':null,'hi'],
