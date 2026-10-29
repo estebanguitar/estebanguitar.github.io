@@ -45,6 +45,7 @@ text-transform:uppercase;letter-spacing:.06em}
 .mtab{border:none;background:none;padding:6px 12px;cursor:pointer;font:inherit;font-size:13px;color:var(--mut);border-bottom:2px solid transparent}
 .mtab[aria-selected=true]{color:var(--fg);border-bottom-color:var(--acc);font-weight:700}
 .mtab:disabled{opacity:.35;cursor:default}
+.km .ev{cursor:pointer;color:var(--acc);font-size:11px;text-decoration:underline;margin-left:4px}.kmev{margin:8px 0;padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:12px;line-height:1.55}.kmev .evh{font-weight:700;margin-bottom:4px}.kmev .evn{opacity:.7;margin-bottom:4px}.kmev li{margin:3px 0}.kmev .evm{opacity:.65;margin-right:6px}
 .km svg{width:100%;height:auto;display:block}.km .kt{cursor:pointer}.km .kt:hover{text-decoration:underline}
 .kmq{font-size:13px;margin:8px 0;padding:6px 10px;border-left:3px solid var(--acc);display:none}.kmq.on{display:block}
 .kmt{list-style:none;padding:0;margin:0}.kmt>li{margin:10px 0}.kmt .kh{font-weight:700;font-size:13px}.kmt .kc{font-size:12px;color:var(--mut);margin:6px 0 2px}
@@ -339,8 +340,9 @@ function render(){
 const mdl=document.createElement('div'); mdl.className='mdl'; mdl.hidden=true; document.body.appendChild(mdl);
 const KCAT=['재무','조직','평판','처우','업무','절차'], KCOL={'강점':'#1e8449','위험':'#c0392b','확인':'#7f8c8d'};
 let MD=null, MX='', MT='지도', kAll=false;
-function kmGroup(d){const g={};
- for(const [sd,ct,wd,w,qq] of ((d.an&&d.an.km)||[])){g[sd]=g[sd]||{};(g[sd][ct]=g[sd][ct]||[]).push({wd:wd,w:w,q:qq});}
+let KEV=[];
+function kmGroup(d){const g={}; KEV=[];
+ for(const [sd,ct,wd,w,qq,ev] of ((d.an&&d.an.km)||[])){g[sd]=g[sd]||{};let e=null; if(ev&&ev[1]&&ev[1].length){e=KEV.length;KEV.push({wd:wd,n:ev[0],qs:ev[1]});}(g[sd][ct]=g[sd][ct]||[]).push({wd:wd,w:w,q:qq,e:e});}
  return g;}
 const kfs=w=>Math.round(Math.min(18,11+Math.log2(Math.max(1,w))*2));
 // 넓은 화면: 가운데 회사, 왼쪽 강점, 오른쪽 위험 가지를 SVG 로 그린다
@@ -358,7 +360,7 @@ function kmSvg(d,g){
    o+='<text x="'+cx+'" y="'+(mid+5)+'" text-anchor="middle" font-size="13" font-weight="700" fill="'+color+'">'+esc(x.c)+'</text>';
    x.ws.forEach((k,i)=>{const yy=y+i*LH;
     o+='<path d="M'+(cx+dir*38)+' '+mid+' C'+(cx+dir*60)+' '+mid+' '+(wx-dir*30)+' '+yy+' '+(wx-dir*6)+' '+yy+'" stroke="'+color+'" fill="none" opacity=".35"/>';
-    o+='<text class="kt" data-q="'+esc(k.q)+'" data-w="'+esc(k.wd)+'" x="'+wx+'" y="'+(yy+5)+'" text-anchor="'+an+'" font-size="'+kfs(k.w)+'" fill="currentColor">'+esc(k.wd)+(k.w>1?' <tspan fill="'+color+'" font-size="11" opacity=".75">·'+k.w+'</tspan>':'')+'</text>';});
+    o+='<text class="kt" data-q="'+esc(k.q)+'" data-w="'+esc(k.wd)+'" x="'+wx+'" y="'+(yy+5)+'" text-anchor="'+an+'" font-size="'+kfs(k.w)+'" fill="currentColor">'+esc(k.wd)+(k.w>1?' <tspan fill="'+color+'" font-size="11" opacity=".75">·'+k.w+'</tspan>':'')+(k.e!=null?' <tspan class="ev" data-ev="'+k.e+'" fill="var(--acc)" font-size="11" text-decoration="underline">근거 '+KEV[k.e].n+'</tspan>':'')+'</text>';});
    if(x.more) o+='<text x="'+wx+'" y="'+(y+x.ws.length*LH+5)+'" text-anchor="'+an+'" font-size="11" fill="'+color+'" opacity=".8">+'+x.more+'개</text>';
    y+=n*LH+LH*0.7;}};
  side(L,-1,'강점'); side(R,1,'위험');
@@ -371,7 +373,7 @@ function kmSvg(d,g){
 // 좁은 화면과 확인 항목: 범주별 칩 목록
 function kmChips(g,sd,k){const lim=kAll?99:3; let o='';
  for(const c of KCAT){const ws=(g[sd]&&g[sd][c])||[]; if(!ws.length) continue;
-  o+='<div class="kc">'+esc(c)+'</div>'+ws.slice(0,lim).map(x=>'<span class="kw s'+k+'" data-q="'+esc(x.q)+'" data-w="'+esc(x.wd)+'">'+esc(x.wd)+(x.w>1?' <small style="opacity:.55">·'+x.w+'</small>':'')+'</span>').join('')
+  o+='<div class="kc">'+esc(c)+'</div>'+ws.slice(0,lim).map(x=>'<span class="kw s'+k+'" data-q="'+esc(x.q)+'" data-w="'+esc(x.wd)+'">'+esc(x.wd)+(x.w>1?' <small style="opacity:.55">·'+x.w+'</small>':'')+(x.e!=null?'<small class="ev" data-ev="'+x.e+'">근거 '+KEV[x.e].n+'</small>':'')+'</span>').join('')
    +(ws.length>lim?'<span class="kw s'+k+'" style="opacity:.6">+'+(ws.length-lim)+'</span>':'');}
  return o;}
 function tabMap(d){const g=kmGroup(d);
@@ -379,7 +381,7 @@ function tabMap(d){const g=kmGroup(d);
  const narrow=window.innerWidth<640;
  let o='<div class="km"><button class="kmall">'+(kAll?'범주별 상위 3개만 보기':'핵심어 전체 보기')+'</button>';
  o+=narrow?'<ul class="kmt"><li><div class="kh" style="color:'+KCOL['강점']+'">강점</div>'+kmChips(g,'강점',0)+'</li><li><div class="kh" style="color:'+KCOL['위험']+'">위험</div>'+kmChips(g,'위험',1)+'</li></ul>':kmSvg(d,g);
- o+='<div class="kmq"></div>';
+ o+='<div class="kmq"></div><div class="kmev" hidden></div>';
  if(g['확인']) o+='<ul class="kmt"><li><div class="kh">면접·지원 전 확인</div>'+kmChips(g,'확인',2)+'</li></ul>';
  return o+'</div>';}
 function tabSum(d){if(!d.an) return '<p class="none">요약 문서가 없다.</p>';
@@ -397,6 +399,13 @@ mdl.addEventListener('click',e=>{
  if(e.target===mdl||e.target.closest('.mx')){closeM();return;}
  const t=e.target.closest('.mtab'); if(t&&!t.disabled){MT=t.dataset.t;drawM();return;}
  if(e.target.closest('.kmall')){kAll=!kAll;drawM();return;}
+ const ev=e.target.closest('.ev');
+ if(ev){const b=mdl.querySelector('.kmev'), i=ev.dataset.ev; if(!b) return;
+  if(!b.hidden&&b.dataset.i===i){b.hidden=true; return;}
+  const x=KEV[i]; b.dataset.i=i; b.hidden=false;
+  b.innerHTML='<div class="evh">'+esc(x.wd)+' — 근거 '+x.n+'건</div>'+(x.n>x.qs.length?'<div class="evn">최신 '+x.qs.length+'건만 표시, 전체 '+x.n+'건</div>':'')
+   +'<ul style="margin:0 0 0 16px;padding:0">'+x.qs.map(r=>'<li><span class="evm">'+esc(r[0])+' · '+esc(r[1])+' · '+esc(r[2])+'</span>'+esc(r[3])+'</li>').join('')+'</ul>';
+  b.scrollIntoView({block:'nearest'}); return;}
  const k=e.target.closest('[data-q]');
  if(k){const b=mdl.querySelector('.kmq'); if(b){b.innerHTML='<b>'+esc(k.dataset.w)+'</b> — '+(esc(k.dataset.q)||'근거 문장 없음'); b.classList.add('on');}}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!mdl.hidden) closeM();});
