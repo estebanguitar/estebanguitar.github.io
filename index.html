@@ -94,6 +94,10 @@ text-transform:uppercase;letter-spacing:.06em}
 .X2{color:#6b7280;border-color:#9ca3af}.X1,.X0{color:#b45309;border-color:#f59e0b;background:#fffbeb}
 .ft{display:inline-block;min-width:22px;text-align:center;font-weight:700;font-size:11px;
  border-radius:3px;padding:1px 5px;margin-right:5px;color:#fff;letter-spacing:-.2px}
+.bd{font-size:11px;font-weight:700;border-radius:3px;padding:1px 6px;white-space:nowrap}
+.bdA{color:var(--g0);background:color-mix(in srgb,var(--g0) 14%,transparent)}
+.bdB{color:var(--g1);background:color-mix(in srgb,var(--g1) 16%,transparent)}
+.bdC{color:var(--g4);background:color-mix(in srgb,var(--g4) 14%,transparent)}
 .F4{background:#15803d}.F3{background:#0369a1}.F2{background:#a16207}.F1{background:#6b7280}
 .st2{display:inline-block;min-width:22px;text-align:center;font-weight:700;font-size:11px;
  border-radius:3px;padding:0 4px;margin-right:5px;letter-spacing:-.2px;border:1.5px solid;background:#fff}
@@ -272,13 +276,9 @@ function render(){
    +((d.an||d.h.length)?'<button class="anb" data-i="'+ri+'" title="핵심어 지도·요약·실사 원문을 새 창으로 본다">요약 보기</button>':'')
    +(d.cmp?'<label class="cmpck" title="두 곳을 골라 비교한다"><input type="checkbox" data-c="'+esc(d.c)+'"'+(CMP.has(d.c)?' checked':'')+'>비교</label>':'')
    +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
-   +(d.rn?'<span class="rk" title="추천 점수 — '+esc(d.rb||'')+'">추천 '+d.rn+'위 · '+d.rk+'</span>'
-     :d.st!=null?'<span class="st2 S'+(d.st>=70?4:d.st>=55?3:d.st>=40?2:1)+'" title="'+stT+'">안정 '+d.st+'</span>':'')
+   +(d.bd?'<span class="bd bd'+(d.bd==='바로 지원'?'A':d.bd==='확인 후'?'B':'C')+'"'+(d.bd==='확인 후'&&d.bdc?' title="확인할 코드: '+esc(d.bdc)+'"':'')+'>'+esc(d.bd)+'</span>':'')
    // 둘째 줄: 라벨과 세부 점수를 작은 회색 글씨로 모은다
    +'<div class="sub"><span class="tag G'+d.g+'"'+(d.v0?' title="실사 기록 라벨: '+esc(d.v0)+'"':'')+'>'+esc(d.v)+'</span>'
-   +(d.ft!=null?'<span title="'+ftT+'">적합 '+d.ft+'</span>':'')
-   +(d.st!=null?'<span title="'+stT+'">안정 '+d.st+'</span>':'')
-   +(d.ft!=null&&d.ax!=null?'<span class="'+(d.ax>=3?'':'axw')+'" title="실사 충실도 — 재무·평판·인원·연봉 4축 중 '+d.ax+'개 확인">'+d.ax+'축</span>':'')
    +(d.gr?'<span title="'+esc(GRT[d.gr]||'')+'">'+esc(d.gr)+'</span>':'')
    +'<span>'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span></div>'
    +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')+'</div><div class="body">';
@@ -299,7 +299,7 @@ function render(){
   if(d.p.length){out+='<div class="jobs">';
    const ps=d.p.slice().sort((a,b)=>(dday(a.dl)===null?0:dday(a.dl)<0?1:0)-(dday(b.dl)===null?0:dday(b.dl)<0?1:0));
    for(const p of ps){const n=dday(p.dl), ex=n!==null&&n<0;
-    out+='<div class="job'+(ex?' expired':'')+'">'+pvb(p)+(p.ft!=null?'<span class="pft" title="'+esc(p.fn||'')+'">적합 '+p.ft+'</span>':'')+'<span class="pf">'+esc(p.pf)+'</span>'
+    out+='<div class="job'+(ex?' expired':'')+'">'+pvb(p)+'<span class="pf">'+esc(p.pf)+'</span>'
     +(p.u?'<a href="'+esc(p.u)+'" target="_blank" rel="noopener">'+esc(p.t||p.jid)+'</a>':esc(p.t||p.jid))
     +(p.dl?'<span class="dl'+(ex?' done':(n!==null&&n<=7?' soon':''))+'">'
         +(ex?'마감됨 '+esc(p.dl):'마감 '+esc(p.dl)+(n!==null?' (D-'+n+')':''))+'</span>':'')
@@ -437,7 +437,6 @@ function cmpRows(d){const m=d.cmp||{}, f=(m.fin||[])[0], f2=(m.fin||[])[1], h=m.
  ['처우'],
  ['연봉 (DART 끼리만 우위 판정)', m.sal&&/^DART/.test(m.sal[1])?m.sal[0]:null, m.sal?Math.round(m.sal[0]).toLocaleString()+'만원 <small>'+esc(m.sal[1])+(/^DART/.test(m.sal[1])?'':' · 참고값')+' · 현 6,700 대비 '+(m.sal[0]>=6700?'+':'')+Math.round(m.sal[0]-6700).toLocaleString()+'</small>':null,'hi'],
  ['직무'],
- ['직무적합도', d.ft, d.ft!=null?d.ft+' <small>'+esc((d.fn||'').slice(0,40))+'</small>':null,'hi'],
  ['출퇴근 (판정 안 함)'],
  ['근무지', null, (m.addr||[]).length?m.addr.map(esc).join('<br>'):null],
  ['교통 관련 복지', null, (m.perk||[]).length?m.perk.map(esc).join('<br>'):'<span class="unk">공고에 언급 없음</span>'],
