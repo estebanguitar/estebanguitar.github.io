@@ -98,6 +98,9 @@ text-transform:uppercase;letter-spacing:.06em}
 .bd{font-size:11px;font-weight:700;border-radius:3px;padding:1px 6px;white-space:nowrap}
 .bdA{color:var(--g0);background:color-mix(in srgb,var(--g0) 14%,transparent)}
 .bdB{color:var(--g1);background:color-mix(in srgb,var(--g1) 16%,transparent)}
+.trA{color:var(--g0);background:color-mix(in srgb,var(--g0) 14%,transparent)}
+.trB{color:var(--g1);background:color-mix(in srgb,var(--g1) 16%,transparent)}
+.trC{color:var(--g4);background:color-mix(in srgb,var(--g4) 14%,transparent)}
 .bdC{color:var(--g4);background:color-mix(in srgb,var(--g4) 14%,transparent)}
 .F4{background:#15803d}.F3{background:#0369a1}.F2{background:#a16207}.F1{background:#6b7280}
 .st2{display:inline-block;min-width:22px;text-align:center;font-weight:700;font-size:11px;
@@ -278,6 +281,7 @@ function render(){
    +(d.cmp?'<label class="cmpck" title="두 곳을 골라 비교한다"><input type="checkbox" data-c="'+esc(d.c)+'"'+(CMP.has(d.c)?' checked':'')+'>비교</label>':'')
    +(d.np?'<span class="np" title="등록된 공고가 없다 — 지원 경로를 직접 찾아야 한다">공고없음</span>':'')
    +(d.bd?'<span class="bd bd'+(d.bd==='바로 지원'?'A':d.bd==='확인 후'?'B':'C')+'"'+(d.bd==='확인 후'&&d.bdc?' title="확인할 코드: '+esc(d.bdc)+'"':'')+'>'+esc(d.bd)+'</span>':'')
+   +(d.tr?'<span class="bd tr'+(d.tr==='추천'?'A':d.tr==='통과'?'C':'B')+'"'+(d.tr!=='추천'&&d.trw?' title="약점 축: '+esc(d.trw)+'"':'')+'>'+esc(d.tr)+'</span>':'')
    // 둘째 줄: 라벨과 세부 점수를 작은 회색 글씨로 모은다
    +'<div class="sub"><span class="tag G'+d.g+'"'+(d.v0?' title="실사 기록 라벨: '+esc(d.v0)+'"':'')+'>'+esc(d.v)+'</span>'
    +(d.gr?'<span title="'+esc(GRT[d.gr]||'')+'">'+esc(d.gr)+'</span>':'')
