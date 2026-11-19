@@ -158,6 +158,13 @@ border-radius:999px;padding:9px 15px;font-size:13px;cursor:pointer;box-shadow:0 
 font-size:14px;cursor:pointer}
 .gate p{color:var(--mut);font-size:13px}
 #out{color:var(--mut);font-size:12px;cursor:pointer;text-decoration:underline;background:0;border:0}
+.smsrc{font-size:10.5px;color:var(--mut);margin-right:6px;white-space:nowrap}
+.smsrc.old{color:#c4553a;font-weight:600}
+@media(max-width:640px){
+ .wrap{padding:18px 16px 72px}
+ .hd{gap:6px 8px;padding:10px 12px}
+ .nm{flex-basis:100%;white-space:normal;overflow:visible;text-overflow:clip;word-break:keep-all;overflow-wrap:anywhere}
+}
 </style></head><body>
 <div class="gate" id="gate">
   <h1>대시보드</h1>
@@ -258,6 +265,13 @@ const GRT={'확인됨(공시)':'DART 전자공시 값이다. 회사가 직접 �
   '불일치':'출처끼리 1.5배 넘게 어긋난다. 숫자 하나를 근거로 쓰지 않는다',
   '추정':'출처가 추정값이라고 밝혔다',
   '리뷰없음':'조사했으나 등록된 리뷰가 0건이다. 나쁜 평판이 아니다'};
+// 접힌 카드 메모가 어느 실사·어느 공고 기준인지 표시한다(11-19 사용자). 메모의 공고 번호가 지금 공고와 하나도 안 겹치면 이전 공고 기준이다
+function smsrc(d){
+ const h=(d.h&&d.h.length)?d.h[d.h.length-1]:null; if(!h) return '';
+ const ids=((h.why||'').match(/\d{6,13}/g)||[]);
+ const live=new Set((d.p||[]).map(p=>String(p.jid||'')));
+ const old=ids.length&&(d.p||[]).length&&!ids.some(x=>live.has(x));
+ return '<span class="smsrc'+(old?' old':'')+'" title="이 메모를 쓴 실사 회차와 날짜">'+(old?'이전 공고 기준 · ':'')+'실사 '+esc(h.d||'')+'</span>';}
 function render(){
  // 🔴 등록된 공고가 없는 회사는 지원할 길이 없다. 화면에서 뺀다.
  //    검색어를 넣으면 다시 보여 과거 판정을 찾을 수 있게 둔다.
@@ -299,7 +313,7 @@ function render(){
    +'<div class="sub"><span class="tag G'+d.g+'"'+(d.v0?' title="실사 기록 라벨: '+esc(d.v0)+'"':'')+'>'+esc(d.v)+'</span>'
    +(d.gr?'<span title="'+esc(GRT[d.gr]||'')+'">'+esc(d.gr)+'</span>':'')
    +'<span>'+(d.rd?d.rd+'차 ':'')+esc(d.dt)+'</span></div>'
-   +(d.sm?'<div class="sm">'+hl(d.sm)+'</div>':'')+'</div><div class="body">';
+   +(d.sm?'<div class="sm">'+smsrc(d)+hl(d.sm)+'</div>':'')+'</div><div class="body">';
   for(const a of d.a){
    out+='<div class="app"><span class="st">'+esc(a.st)+'</span> · '+esc(a.on)+' 지원'
     +(a.pf?' · '+esc(a.pf):'')+(a.t?'<br>'+esc(a.t):'')
