@@ -188,6 +188,8 @@ let repOnly=false;
 let topOnly=false;
 // 분석 완료 칩을 켜면 심층 분석 보고서가 있는 회사만 보인다
 let anOnly=false;
+// 적합도순 칩을 켜면 칸 안을 직무적합도 높은 순으로 다시 정렬한다(11-19 사용자). 끄면 서버의 추천순이다
+let fitSort=false; try{fitSort=localStorage.getItem('fitSort')==='1';}catch(e){}
 const bar=document.getElementById('bar'), list=document.getElementById('list');
 function chips(){
  bar.querySelectorAll('.chip').forEach(n=>n.remove());
@@ -209,6 +211,10 @@ function chips(){
  if(nr){const b=document.createElement('button');b.className='chip';b.id='repchip';
   b.setAttribute('aria-pressed',repOnly);b.innerHTML='평판 확인<b>'+nr+'</b>';
   b.onclick=()=>{repOnly=!repOnly;if(repOnly){topOnly=false;anOnly=false;}b.setAttribute('aria-pressed',repOnly);chips();render();};
+  bar.insertBefore(b,document.getElementById('q'));}
+ {const b=document.createElement('button');b.className='chip';b.id='fitchip';
+  b.setAttribute('aria-pressed',fitSort);b.textContent='적합도순';b.title='칸 안을 직무적합도 높은 순으로 정렬한다. 끄면 추천순';
+  b.onclick=()=>{fitSort=!fitSort;try{localStorage.setItem('fitSort',fitSort?'1':'0');}catch(e){}b.setAttribute('aria-pressed',fitSort);render();};
   bar.insertBefore(b,document.getElementById('q'));}
  // 분석 완료 칩은 고민중과 같은 목록이라 뺐다(10-08 사용자)
 }
@@ -262,6 +268,11 @@ function render(){
     ||(d.sd||'').toLowerCase().includes(t)
     ||(d.p||[]).concat(d.ph||[]).some(p=>[p.t,p.hf,p.inf].some(v=>(v||'').toLowerCase().includes(t)))
   ||d.h.some(h=>(h.why||'').toLowerCase().includes(t)));}
+ if(fitSort&&!topOnly&&!repOnly){
+  // 칸 순서와 공고 없는 회사의 뒤 배치는 그대로 두고, 칸 안만 적합도 내림차순으로 바꾼다
+  const gi={},oi=new Map();rows.forEach((d,i)=>{if(!(d.g in gi))gi[d.g]=i;oi.set(d,i);});
+  const f=d=>d.ft==null?-1:d.ft;
+  rows=rows.slice().sort((a,b)=>gi[a.g]-gi[b.g]||(a.np?1:0)-(b.np?1:0)||f(b)-f(a)||oi.get(a)-oi.get(b));}
  document.getElementById('cnt').textContent='표시 '+rows.length+'곳';
  let out='',cur='';
  ROWS=rows; MO=[];
