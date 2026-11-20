@@ -505,8 +505,8 @@ function load(j,label,cls){
  chips(); render(); autoBox(j.auto||[]);}
 function autoBox(R){
  const a=document.getElementById('auto'); if(!R.length){a.hidden=true;return;} a.hidden=false;
- const r=R[0]; document.getElementById('autos').innerHTML='무인 회차 · 마지막 <b>'+esc(r.tag)+'</b> '+(r.end?esc(r.end)+(/:/.test(r.end)?' 끝':''):'진행 중 또는 중단')+' · '+(r.ok?'<span class="aok">정상</span>':'<span class="ang">확인 필요</span>');
- document.getElementById('autob').innerHTML=R.map(x=>'<div class="arun"><div class="ah">'+esc(x.tag)+' '+(x.end?esc(x.end)+(/:/.test(x.end)?' 끝':''):'끝 표시 없음')+' · '+(x.ok?'정상':'확인 필요')+'</div><ul>'+x.lines.map((t,k)=>'<li'+((x.bad||[]).includes(k)?' class="ang"':/🟢/.test(t)?' class="aok"':'')+'>'+esc(t)+'</li>').join('')+'</ul></div>').join('');}
+ const r=R[0]; document.getElementById('autos').innerHTML='무인 회차 · 마지막 <b>'+esc(r.tag)+'</b> '+(r.end?esc(r.end)+(/:/.test(r.end)?' 끝':''):'끝 표시 전')+' · '+(r.ok===null?'<span>진행 중</span>':r.ok?'<span class="aok">정상</span>':'<span class="ang">확인 필요</span>');
+ document.getElementById('autob').innerHTML=R.map(x=>'<div class="arun"><div class="ah">'+esc(x.tag)+' '+(x.end?esc(x.end)+(/:/.test(x.end)?' 끝':''):'끝 표시 없음')+' · '+(x.ok===null?'진행 중':x.ok?'정상':'확인 필요')+'</div><ul>'+x.lines.map((t,k)=>'<li'+((x.bad||[]).includes(k)?' class="ang"':/🟢/.test(t)?' class="aok"':'')+'>'+esc(t)+'</li>').join('')+'</ul></div>').join('');}
 
 const app=initializeApp({"apiKey": "AIzaSyDeQwTtwCXDtQ6bX6xdxMI2Vtr_1_D8yjg", "authDomain": "jobdash-16745.firebaseapp.com", "databaseURL": "https://jobdash-16745-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "jobdash-16745", "storageBucket": "jobdash-16745.firebasestorage.app", "messagingSenderId": "751069223370", "appId": "1:751069223370:web:44942f8cc7509a26171733"}), auth=getAuth(app), db=getDatabase(app);
 const gate=document.getElementById('gate'), appEl=document.getElementById('app'),
